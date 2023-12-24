@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:flutter_recipes/models/recipe_model.dart';
+import 'package:flutter_recipes/models/recipe/recipe_model.dart';
+import 'package:flutter_recipes/models/recipe/source.dart';
 import 'package:flutter_recipes/shared/linear_progress_with_widget.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
@@ -10,6 +11,7 @@ class LoadingRecipeCard extends StatefulWidget {
   const LoadingRecipeCard({Key? key, required this.recipe}) : super(key: key);
 
   @override
+  // ignore: library_private_types_in_public_api
   _LoadingRecipeCardState createState() => _LoadingRecipeCardState();
 }
 
@@ -69,7 +71,6 @@ class _LoadingRecipeCardState extends State<LoadingRecipeCard>
         });
       }
     });
-
   }
 
   @override
@@ -111,19 +112,19 @@ class _LoadingRecipeCardState extends State<LoadingRecipeCard>
             ),
             const SizedBox(width: 16),
             Expanded(
-            child: ProgressWithAnimatedWidget(
-              customWidget: Transform.translate(
-                offset: const Offset(-25, 0),
-                child: Image.asset(
-                  emojis[emojiIndex],
-                  key: ValueKey<String>(emojis[emojiIndex]),
-                  width: 50,
-                  height: 50,
+              child: ProgressWithAnimatedWidget(
+                customWidget: Transform.translate(
+                  offset: const Offset(-25, 0),
+                  child: Image.asset(
+                    emojis[emojiIndex],
+                    key: ValueKey<String>(emojis[emojiIndex]),
+                    width: 50,
+                    height: 50,
+                  ),
                 ),
+                duration: Duration(seconds: durationSeconds),
               ),
-              duration: Duration(seconds: durationSeconds),
             ),
-          ),
           ],
         ),
       ),

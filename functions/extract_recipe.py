@@ -3,7 +3,7 @@ import logging
 import time
 from typing import Dict
 
-from model.RecipeData import RecipeData
+from model.model import Recipe
 from util.logging import log_performance
 
 
@@ -16,8 +16,8 @@ def extract_recipe(text: str, openai_api_key: str) -> Dict:
         client = OpenAI(api_key=openai_api_key)
 
         logging.debug("Defining JSON schema for expected output...")
-        json_schema = RecipeData.schema()  # Use Pydantic's schema method
-        logging.debug(f"JSON schema: {json_schema}")
+        json_schema = Recipe.schema()  # Use Pydantic's schema method
+        logging.info(f"JSON schema: {json_schema}")
 
         logging.debug("Defining function and message for OpenAI API request...")
         tools = [
@@ -52,7 +52,7 @@ def extract_recipe(text: str, openai_api_key: str) -> Dict:
 
         logging.debug("Extracting assistant's reply from API response...")
         reply = completion.choices[0].message.tool_calls[0].function.arguments
-        logging.debug(f"Reply: {reply}")
+        logging.info(f"Reply: {reply}")
 
         logging.debug("Parsing reply into JSON...")
         recipe_data = json.loads(reply)

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_recipes/models/recipe_model.dart';
+import 'package:flutter_recipes/models/recipe/recipe_model.dart';
 import 'package:flutter_recipes/shared/global_state.dart';
 import 'package:flutter_recipes/screens/home_screen/recipe_card.dart';
 import 'package:provider/provider.dart';
@@ -19,14 +19,13 @@ class RecipeListView extends StatelessWidget {
       valueListenable: Provider.of<GlobalState>(context).recipes,
       builder: (context, recipes, child) {
         String searchQuery = Provider.of<GlobalState>(context).searchQuery;
-        int minutesRequired =
-            Provider.of<GlobalState>(context).minutesRequired;
+        int minutesRequired = Provider.of<GlobalState>(context).minutesRequired;
 
         List<RecipeModel> filteredRecipes = recipes.where((recipe) {
           bool matchesSearchQuery = searchQuery.isEmpty ||
               recipe.data.title.contains(searchQuery) ||
-              recipe.data.ingredients
-                  .any((ingredient) => ingredient!.name.contains(searchQuery));
+              recipe.data.ingredients.any((ingredient) =>
+                  ingredient.ingredientData.name.contains(searchQuery));
 
           return matchesSearchQuery &&
               recipe.data.cookTime + recipe.data.prepTime <= minutesRequired;
@@ -47,4 +46,3 @@ class RecipeListView extends StatelessWidget {
     );
   }
 }
-

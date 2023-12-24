@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_recipes/models/recipe_model.dart';
+import 'package:flutter_recipes/models/recipe/recipe_model.dart';
 
 class RecipeController {
   late TextEditingController titleController;
@@ -39,18 +39,18 @@ class RecipeController {
 
     ingredientNameControllers = List.generate(
       recipe.data.ingredients.length,
-      (index) =>
-          TextEditingController(text: recipe.data.ingredients[index].name),
+      (index) => TextEditingController(
+          text: recipe.data.ingredients[index].ingredientData.name),
     );
     ingredientQuantityControllers = List.generate(
       recipe.data.ingredients.length,
       (index) => TextEditingController(
-          text: recipe.data.ingredients[index].quantity.value.toString()),
+          text: recipe.data.ingredients[index].quantity.toString()),
     );
     ingredientUnitControllers = List.generate(
       recipe.data.ingredients.length,
       (index) => TextEditingController(
-          text: recipe.data.ingredients[index].quantity.units),
+          text: recipe.data.ingredients[index].units.toString()),
     );
 
     methodControllers = List.generate(

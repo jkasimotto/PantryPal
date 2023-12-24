@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_recipes/models/ingredient_model.dart';
+import 'package:flutter_recipes/models/ingredient/ingredient_with_quantity.dart';
 import 'package:flutter_recipes/screens/recipe_screen/cards/ingredient_detail_card.dart';
 import 'package:flutter_recipes/screens/recipe_screen/ingredient_dialog.dart';
 
 class IngredientGrid extends StatelessWidget {
-  final List<IngredientData> ingredients;
+  final List<IngredientWithQuantity> ingredients;
   final List<TextEditingController> nameControllers;
   final List<TextEditingController> quantityControllers;
   final List<TextEditingController> unitControllers;

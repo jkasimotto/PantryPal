@@ -1,6 +1,6 @@
 import 'dart:developer' as developer;
 import 'package:flutter/material.dart';
-import 'package:flutter_recipes/models/recipe_model.dart';
+import 'package:flutter_recipes/models/recipe/recipe_model.dart';
 import 'package:flutter_recipes/shared/global_state.dart';
 import 'package:flutter_recipes/screens/home_screen/recipe_list_view.dart';
 import 'package:provider/provider.dart';
@@ -24,10 +24,13 @@ class RecipeStreamBuilder extends StatelessWidget {
           developer
               .log('StreamBuilder: Received data - ${recipes.length} recipes');
 
-          if (Provider.of<GlobalState>(context, listen: false).recipes != recipes) {
+          if (Provider.of<GlobalState>(context, listen: false).recipes !=
+              recipes) {
             WidgetsBinding.instance.addPostFrameCallback((_) {
-              Provider.of<GlobalState>(context, listen: false).setRecipes(recipes);
-              developer.log('StreamBuilder: Updated recipes in HomeScreenState');
+              Provider.of<GlobalState>(context, listen: false)
+                  .setRecipes(recipes);
+              developer
+                  .log('StreamBuilder: Updated recipes in HomeScreenState');
             });
           }
           return const RecipeListView();

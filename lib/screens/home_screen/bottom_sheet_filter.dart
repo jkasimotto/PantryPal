@@ -1,7 +1,4 @@
-import 'dart:async';
-import 'dart:developer' as developer;
 import 'package:flutter/material.dart';
-import 'package:flutter_recipes/models/recipe_model.dart';
 import 'package:flutter_recipes/shared/global_state.dart';
 import 'package:provider/provider.dart';
 import 'dart:math';
@@ -9,7 +6,7 @@ import 'dart:math';
 class BottomSheetFilter extends StatelessWidget {
   final GlobalState homeScreenState;
 
-  BottomSheetFilter({required this.homeScreenState});
+  const BottomSheetFilter({super.key, required this.homeScreenState});
 
   @override
   Widget build(BuildContext context) {
@@ -21,35 +18,38 @@ class BottomSheetFilter extends StatelessWidget {
       height: 132,
       decoration: BoxDecoration(
         color: primaryColorLighter,
-        borderRadius: const BorderRadius.only(topLeft: Radius.circular(25.0), topRight: const Radius.circular(25.0)), // Set the radius for the corners
+        borderRadius: const BorderRadius.only(
+            topLeft: Radius.circular(25.0),
+            topRight: Radius.circular(25.0)), // Set the radius for the corners
       ),
       child: Column(
         children: [
           if (homeScreenState.isBottomSheetVisible) ...[
-            Consumer<GlobalState>(
-              builder: (context, homeScreenState, child) {
-                return SliderTheme(
-                  data: SliderThemeData(
-                    trackShape: const RectangularSliderTrackShape(),
-                    trackHeight: 4.0,
-                    thumbShape: ClockThumbShape(thumbRadius: 12.0),
-                    overlayShape: const RoundSliderOverlayShape(
-                        overlayRadius: 28.0),
-                  ),
-                  child: Slider(
-                    value: homeScreenState.minutesRequired.toDouble(),
-                    min: 0,
-                    max: 180,
-                    divisions: 180,
-                    label:
-                        '⏱️ ${homeScreenState.minutesRequired} minutes',
-                    onChanged: (double newValue) {
-                      homeScreenState
-                          .setMinutesRequired(newValue.toInt());
-                    },
-                  ),
-                );
-              },
+            Padding(
+              padding: const EdgeInsets.only(right: 60.0),
+              child: Consumer<GlobalState>(
+                builder: (context, homeScreenState, child) {
+                  return SliderTheme(
+                    data: SliderThemeData(
+                      trackShape: const RectangularSliderTrackShape(),
+                      trackHeight: 4.0,
+                      thumbShape: ClockThumbShape(thumbRadius: 12.0),
+                      overlayShape:
+                          const RoundSliderOverlayShape(overlayRadius: 28.0),
+                    ),
+                    child: Slider(
+                      value: homeScreenState.minutesRequired.toDouble(),
+                      min: 0,
+                      max: 180,
+                      divisions: 180,
+                      label: '⏱️ ${homeScreenState.minutesRequired} minutes',
+                      onChanged: (double newValue) {
+                        homeScreenState.setMinutesRequired(newValue.toInt());
+                      },
+                    ),
+                  );
+                },
+              ),
             ),
           ],
           TextField(

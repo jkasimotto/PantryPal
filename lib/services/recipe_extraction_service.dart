@@ -1,10 +1,14 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:flutter_recipes/models/ingredient_model.dart';
-import 'package:flutter_recipes/models/recipe_method_step_model.dart';
+import 'package:flutter_recipes/models/ingredient/ingredient_data.dart';
+import 'package:flutter_recipes/models/ingredient/ingredient_with_quantity.dart';
+import 'package:flutter_recipes/models/ingredient/nutritional_information.dart';
+import 'package:flutter_recipes/models/method/recipe_method_step_model.dart';
+import 'package:flutter_recipes/models/recipe/recipe_model.dart';
+import 'package:flutter_recipes/models/recipe/source.dart';
+import 'package:flutter_recipes/models/status.dart';
 import 'package:uuid/uuid.dart';
-import 'package:flutter_recipes/models/recipe_model.dart';
 import 'package:flutter_recipes/services/firestore_service.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:flutter_recipes/services/cloud_functions_service.dart'
@@ -137,23 +141,49 @@ class RecipeExtractionService {
   Future<List<RecipeModel>> createInitialRecipes(
       String userId, FirestoreService firestoreService) async {
     // Ingredient data for soft boiled egg
-    IngredientData egg = IngredientData(
-      name: 'Egg',
-      quantity: QuantityData(value: 1, units: 'piece'),
-      form: 'Whole',
-      category: 'Protein',
-      allergens: [],
-      substitutions: [],
-      nutritionalInformation: NutritionalInformation(
-        calories: 68,
-        fats: 4.8,
-        carbohydrates: 0.6,
-        proteins: 5.5,
-        vitamins: 10,
-        minerals: 12,
+    IngredientWithQuantity egg = IngredientWithQuantity(
+      ingredientData: IngredientData(
+        name: 'Egg',
+        form: 'Whole',
+        category: 'Protein',
+        allergens: [],
+        substitutions: [],
+        nutritionalInformation: NutritionalInformation(
+          calories: 68,
+          fats: 4.8,
+          carbohydrates: 0.6,
+          proteins: 5.5,
+          vitamins: 10,
+          minerals: 12,
+        ),
+        shelfLife: "21 days",
+        seasonality: "All Year",
       ),
-      shelfLife: "21 days",
-      seasonality: "All Year",
+      quantity: 1,
+      units: '',
+    );
+
+    // Ingredient data for eggs and bacon
+    IngredientWithQuantity bacon = IngredientWithQuantity(
+      ingredientData: IngredientData(
+        name: 'Bacon',
+        form: 'Sliced',
+        category: 'Protein',
+        allergens: [],
+        substitutions: [],
+        nutritionalInformation: NutritionalInformation(
+          calories: 42,
+          fats: 3.3,
+          carbohydrates: 0.1,
+          proteins: 3,
+          vitamins: 0,
+          minerals: 1,
+        ),
+        shelfLife: "7 days",
+        seasonality: "All Year",
+      ),
+      quantity: 2,
+      units: 'slices',
     );
 
     // Recipe 1: Soft boiled egg
@@ -179,26 +209,6 @@ class RecipeExtractionService {
         source: Source.text,
         status: Status.success,
       ),
-    );
-
-    // Ingredient data for eggs and bacon
-    IngredientData bacon = IngredientData(
-      name: 'Bacon',
-      quantity: QuantityData(value: 2, units: 'slices'),
-      form: 'Sliced',
-      category: 'Protein',
-      allergens: [],
-      substitutions: [],
-      nutritionalInformation: NutritionalInformation(
-        calories: 42,
-        fats: 3.3,
-        carbohydrates: 0.1,
-        proteins: 3,
-        vitamins: 0,
-        minerals: 1,
-      ),
-      shelfLife: "7 days",
-      seasonality: "All Year",
     );
 
     // Recipe 2: Eggs and bacon

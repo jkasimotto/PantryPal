@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_recipes/models/user_model.dart';
+import 'package:flutter_recipes/models/user/user_model.dart';
 import 'package:flutter_recipes/providers/user_provider.dart';
 import 'package:flutter_recipes/services/auth_service.dart';
 import 'package:flutter_recipes/services/recipe_extraction_service.dart';
@@ -8,7 +8,6 @@ import 'package:provider/provider.dart';
 import 'package:flutter_recipes/services/logger.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:flutter_recipes/services/firestore_service.dart'; // Added this import
-import 'package:showcaseview/showcaseview.dart'; // Added this import
 
 class SignInScreen extends StatefulWidget {
   @override
@@ -27,8 +26,6 @@ class _SignInScreenState extends State<SignInScreen> {
     final theme = Theme.of(context);
     final primaryColor = theme.colorScheme.primary;
     final secondaryColor = theme.colorScheme.secondary;
-    final backgroundColor = theme.colorScheme.background;
-    final surfaceColor = theme.colorScheme.surface;
 
     return Scaffold(
       body: Container(

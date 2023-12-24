@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 
 class RecipeScreenAppBar extends StatelessWidget implements PreferredSizeWidget {
-  final TextEditingController _titleController;
   final Function _saveRecipe;
 
-  RecipeScreenAppBar(this._titleController, this._saveRecipe);
+  RecipeScreenAppBar(this._saveRecipe);
 
   @override
   Widget build(BuildContext context) {

@@ -8,7 +8,7 @@ import 'package:image_picker/image_picker.dart';
 class ImagePreviewDialog extends StatelessWidget {
   final List<XFile> images;
 
-  ImagePreviewDialog({required this.images});
+  const ImagePreviewDialog({super.key, required this.images});
 
   @override
   Widget build(BuildContext context) {

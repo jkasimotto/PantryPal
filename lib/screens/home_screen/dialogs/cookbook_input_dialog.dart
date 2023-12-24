@@ -3,16 +3,16 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_recipes/services/user_input_service.dart';
-import 'package:flutter_recipes/shared/bottom_nav.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 class CookbookInputDialog extends StatefulWidget {
   final UserInputService userInputService;
 
-  CookbookInputDialog({required this.userInputService});
+  const CookbookInputDialog({super.key, required this.userInputService});
 
   @override
+  // ignore: library_private_types_in_public_api
   _CookbookInputDialogState createState() => _CookbookInputDialogState();
 }
 

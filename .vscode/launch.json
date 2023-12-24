@@ -10,7 +10,7 @@
             "type": "dart",
             "flutterMode": "debug",
             "args": [
-                // "--dart-define=USE_FIREBASE_EMULATOR=true"
+                "--dart-define=USE_FIREBASE_EMULATOR=true"
             ]
         },
         {

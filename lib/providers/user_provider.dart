@@ -1,5 +1,5 @@
 import 'package:flutter/foundation.dart';
-import 'package:flutter_recipes/models/user_model.dart';
+import 'package:flutter_recipes/models/user/user_model.dart';
 import 'package:flutter_recipes/services/firestore_service.dart';
 
 class UserProvider extends ChangeNotifier {

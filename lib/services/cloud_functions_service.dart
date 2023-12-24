@@ -1,8 +1,8 @@
 import 'dart:developer' as developer;
 import 'dart:convert';
 import 'package:cloud_functions/cloud_functions.dart';
-import 'package:flutter_recipes/models/ingredient_model.dart';
-import 'package:flutter_recipes/models/recipe_model.dart';
+import 'package:flutter_recipes/models/recipe/recipe_model.dart';
+import 'package:flutter_recipes/models/shopping_list/shopping_list_model.dart';
 
 Future<String> transcribeAudio(String audioBase64) async {
   try {
@@ -44,9 +44,11 @@ Future<String> transcribeYoutubeVideo(String videoUrl) async {
   }
 }
 
-Future<String> combineIngredients(List<RecipeModel> recipes) async {
+Future<List<ShoppingListIngredientData>> combineIngredients(
+    List<RecipeModel> recipes) async {
   try {
-    var recipesJson = recipes.map((recipe) => recipe.toJson()).toList();
+    var recipesJson =
+        jsonEncode(recipes.map((recipe) => recipe.toJson()).toList());
 
     final result = await FirebaseFunctions.instance
         .httpsCallable('combine_ingredients',
@@ -55,30 +57,15 @@ Future<String> combineIngredients(List<RecipeModel> recipes) async {
         .call({'recipes': recipesJson});
 
     if (result.data['status'] == 'success') {
-      developer.log(jsonEncode(result.data['combined_ingredients']));
+      // Decode the JSON data
+      var decodedData = jsonDecode(result.data['ingredients']);
+      print("DECODED $decodedData");
 
-      var combinedIngredients = result.data['combined_ingredients'] as Map;
-      var combinedIngredientsString = '';
-
-      var categoriesOrder = ['produce', 'fridge', 'aisle', 'freezer'];
-
-      for (var category in categoriesOrder) {
-        var ingredients = combinedIngredients[category];
-        if (ingredients != null && ingredients.length != 0) {
-          // Sort the ingredients alphabetically
-          ingredients.sort((a, b) =>
-              (a['ingredient'] as String).compareTo(b['ingredient'] as String));
-
-          combinedIngredientsString += '\n${category.toUpperCase()}\n';
-          combinedIngredientsString += ingredients.map((ingredient) {
-            var quantity = ingredient['quantity'] ?? '';
-            return '- ${ingredient['ingredient']}${quantity.isNotEmpty ? ': $quantity' : ''}';
-          }).join('\n');
-          combinedIngredientsString += '\n';
-        }
-      }
-
-      return combinedIngredientsString;
+      // Parse the ingredients from the result data
+      List<ShoppingListIngredientData> ingredients = (decodedData as List)
+          .map((ingredient) => ShoppingListIngredientData.fromJson(ingredient))
+          .toList();
+      return ingredients;
     } else {
       print('Error: ${result.data['error']}');
       return Future.error(result.data['error']);

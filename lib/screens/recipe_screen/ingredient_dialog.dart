@@ -56,10 +56,8 @@ class IngredientDialog extends StatelessWidget {
                 style:
                     TextStyle(color: Theme.of(context).colorScheme.onSurface)),
             onPressed: () {
-              if (index != null) {
-                onDelete(index!);
-              }
-            },
+              onDelete(index);
+                        },
           ),
           TextButton(
             child: Text('Save',

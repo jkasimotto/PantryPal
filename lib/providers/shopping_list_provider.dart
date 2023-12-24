@@ -1,5 +1,5 @@
 import 'package:flutter/foundation.dart';
-import 'package:flutter_recipes/models/recipe_model.dart';
+import 'package:flutter_recipes/models/recipe/recipe_model.dart';
 
 class ShoppingListProvider with ChangeNotifier {
   List<RecipeModel> _selectedRecipes;

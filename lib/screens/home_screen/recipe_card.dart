@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_recipes/models/recipe_model.dart';
+import 'package:flutter_recipes/models/recipe/recipe_model.dart';
+import 'package:flutter_recipes/models/status.dart';
 import 'package:flutter_recipes/shared/global_state.dart';
 import 'package:flutter_recipes/screens/home_screen/loading_recipe_card.dart';
 import 'package:flutter_recipes/screens/recipe_screen/recipe_screen.dart';
@@ -10,7 +11,7 @@ class RecipeCard extends StatelessWidget {
   final RecipeModel recipe;
   final Function onChanged;
 
-  RecipeCard({super.key, required this.recipe, required this.onChanged});
+  const RecipeCard({super.key, required this.recipe, required this.onChanged});
 
   @override
   Widget build(BuildContext context) {
@@ -46,20 +47,20 @@ class RecipeCard extends StatelessWidget {
           ),
         );
       case Status.error:
-  // Display an error message
-  return Card(
-    color: Colors.red,
-    child: ListTile(
-      leading: IconButton(
-        icon: const Icon(Icons.close),
-        onPressed: () async {
-          FirestoreService firestoreService = FirestoreService();
-          await firestoreService.deleteDocument(recipe.id, 'recipes');
-        },
-      ),
-      title: const Text('An error occurred while loading the recipe.'),
-    ),
-  );
+        // Display an error message
+        return Card(
+          color: Colors.red,
+          child: ListTile(
+            leading: IconButton(
+              icon: const Icon(Icons.close),
+              onPressed: () async {
+                FirestoreService firestoreService = FirestoreService();
+                await firestoreService.deleteDocument(recipe.id, 'recipes');
+              },
+            ),
+            title: const Text('An error occurred while loading the recipe.'),
+          ),
+        );
     }
   }
 }

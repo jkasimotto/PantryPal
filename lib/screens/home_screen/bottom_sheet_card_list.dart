@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_recipes/controllers/recipe_controller.dart';
-import 'package:flutter_recipes/models/user_model.dart';
+import 'package:flutter_recipes/models/user/user_model.dart';
 import 'package:flutter_recipes/providers/user_provider.dart';
 import 'package:flutter_recipes/screens/home_screen/dialogs/cookbook_input_dialog.dart';
 import 'package:flutter_recipes/services/user_input_service.dart';
@@ -17,6 +17,7 @@ class BottomSheetCardList extends StatelessWidget {
       ScrollController(initialScrollOffset: 20.0); // Add this line
 
   BottomSheetCardList({
+    super.key,
     required this.userProvider,
     required this.userInputService,
     required this.recipeController,
@@ -40,11 +41,10 @@ class BottomSheetCardList extends StatelessWidget {
     var primaryColorLighter = colorScheme.primary.withOpacity(0.7);
 
     return ClipRRect(
-          borderRadius: const BorderRadius.only(
-            topLeft: Radius.circular(25.0),
-            topRight: Radius.circular(25.0),
-          ),
-
+      borderRadius: const BorderRadius.only(
+        topLeft: Radius.circular(25.0),
+        topRight: Radius.circular(25.0),
+      ),
       child: Container(
         decoration: BoxDecoration(
           color: primaryColorLighter, // set the color to primaryColorLighter
@@ -64,8 +64,7 @@ class BottomSheetCardList extends StatelessWidget {
                     context, user.metadata.hasCompletedTextAction);
                 if (recipeText != null) {
                   if (context.mounted) {
-                    recipeController.handleRecipeExtractionFromText(
-                        context, recipeText);
+                    recipeController.handleTextSelection(recipeText);
                   }
                 }
               },
@@ -79,8 +78,7 @@ class BottomSheetCardList extends StatelessWidget {
                     context, user.metadata.hasCompletedTextAction);
                 if (recipeText != null) {
                   if (context.mounted) {
-                    recipeController.handleRecipeExtractionFromText(
-                        context, recipeText);
+                    recipeController.handleTextSelection(recipeText);
                   }
                 }
               },

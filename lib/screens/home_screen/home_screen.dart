@@ -3,12 +3,14 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_recipes/controllers/recipe_controller.dart';
-import 'package:flutter_recipes/models/user_model.dart';
+import 'package:flutter_recipes/models/user/user_model.dart';
+import 'package:flutter_recipes/providers/ad_provider.dart';
 import 'package:flutter_recipes/providers/user_provider.dart';
 import 'package:flutter_recipes/providers/bottom_nav_provider.dart'; // Added this import
 import 'package:flutter_recipes/screens/home_screen/app_bar.dart';
 import 'package:flutter_recipes/screens/home_screen/bottom_sheet_filter.dart';
 import 'package:flutter_recipes/screens/home_screen/bottom_sheet_card_list.dart';
+import 'package:flutter_recipes/screens/lists_screen/lists_screen.dart';
 import 'package:flutter_recipes/shared/global_state.dart';
 import 'package:flutter_recipes/screens/home_screen/recipe_list_view.dart';
 import 'package:flutter_recipes/screens/signin_screen.dart';
@@ -27,9 +29,10 @@ import 'package:shared_preferences/shared_preferences.dart';
 enum LoadingState { idle, loadingWithAd, loadingNoAd, tutorial }
 
 class HomeScreen extends StatefulWidget {
-  HomeScreen({Key? key}) : super(key: key);
+  const HomeScreen({Key? key}) : super(key: key);
 
   @override
+  // ignore: library_private_types_in_public_api
   _HomeScreenState createState() => _HomeScreenState();
 }
 
@@ -46,7 +49,7 @@ class _HomeScreenState extends State<HomeScreen> {
       firestoreService: FirestoreService(),
       homeScreenState: Provider.of<GlobalState>(context),
       userProvider: Provider.of<UserProvider>(context),
-      adService: AdService(),
+      adService: Provider.of<AdProvider>(context).adService,
     );
 
     if (user == null) {
@@ -62,9 +65,16 @@ class _HomeScreenState extends State<HomeScreen> {
                   recipeController.deleteSelectedRecipes();
                 },
                 handleShare: () {
-                  recipeController.copySelectedRecipesToClipboard();
+                  recipeController.shareSelectedRecipes();
                 },
                 handleShoppingList: (context) {
+                  Navigator.pushAndRemoveUntil(
+                    context,
+                    MaterialPageRoute(
+                        builder: (BuildContext context) => const ListsScreen()),
+                    (route) => false,
+                  );
+                  bottomNavBarProvider.currentIndex = 1;
                   recipeController.generateShoppingList(context);
                 },
               ),
@@ -75,14 +85,29 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                 ],
               ),
+              floatingActionButton: FloatingActionButton(
+                onPressed: () {
+                  Provider.of<GlobalState>(context, listen: false)
+                      .setAddingOrSearchingRecipes(
+                          !Provider.of<GlobalState>(context, listen: false)
+                              .isAddingOrSearchingRecipes);
+                },
+                child:
+                    Provider.of<GlobalState>(context).isAddingOrSearchingRecipes
+                        ? const FaIcon(FontAwesomeIcons.magnifyingGlass)
+                        : const FaIcon(FontAwesomeIcons.plus),
+              ),
+              floatingActionButtonLocation: FloatingActionButtonLocation
+                  .miniEndFloat,
               bottomNavigationBar: BottomNavBar(),
-              bottomSheet: bottomNavBarProvider.currentIndex == 0
-                  ? BottomSheetFilter(
-                      homeScreenState: Provider.of<GlobalState>(context))
-                  : BottomSheetCardList(
-                      userProvider: userProvider,
-                      userInputService: userInputService,
-                      recipeController: recipeController));
+              bottomSheet:
+                  !Provider.of<GlobalState>(context).isAddingOrSearchingRecipes
+                      ? BottomSheetFilter(
+                          homeScreenState: Provider.of<GlobalState>(context))
+                      : BottomSheetCardList(
+                          userProvider: userProvider,
+                          userInputService: userInputService,
+                          recipeController: recipeController));
         },
       );
     }

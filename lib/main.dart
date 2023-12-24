@@ -5,6 +5,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_recipes/firebase_options.dart';
+import 'package:flutter_recipes/providers/ad_provider.dart';
 import 'package:flutter_recipes/providers/bottom_nav_provider.dart';
 import 'package:flutter_recipes/shared/global_state.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart'; // Added this line
@@ -75,6 +76,8 @@ void main() async {
             ),
             ChangeNotifierProvider(
                 create: (context) => GlobalState(userProvider)),
+                 ChangeNotifierProvider(
+                create: (context) => AdProvider()),
             // Add other providers here
           ],
           child: const MyApp(),

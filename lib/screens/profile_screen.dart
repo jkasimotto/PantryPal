@@ -1,11 +1,9 @@
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_recipes/providers/bottom_nav_provider.dart';
 import 'package:flutter_recipes/services/auth_service.dart';
 import 'package:flutter_recipes/services/firestore_service.dart';
 import 'package:flutter_recipes/shared/bottom_nav.dart';
-import 'package:flutter_recipes/models/user_model.dart'; // Import the user model
+import 'package:flutter_recipes/models/user/user_model.dart'; // Import the user model
 import 'package:flutter_recipes/providers/user_provider.dart'; // Import the user provider
 import 'package:provider/provider.dart';
 
@@ -26,10 +24,12 @@ class ProfileScreen extends StatelessWidget {
         child: Padding(
           padding: const EdgeInsets.all(8.0),
           child: Column(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween, // This will create space between the top and bottom widgets
+            mainAxisAlignment: MainAxisAlignment
+                .spaceBetween, // This will create space between the top and bottom widgets
             children: [
               Column(
-                mainAxisAlignment: MainAxisAlignment.start, // Aligns all children to the start of the column
+                mainAxisAlignment: MainAxisAlignment
+                    .start, // Aligns all children to the start of the column
                 children: [
                   Card(
                     child: Column(
@@ -37,7 +37,7 @@ class ProfileScreen extends StatelessWidget {
                         ListTile(
                           leading: const Icon(Icons.star),
                           title: Text(
-                              'Subscription Level: ${user!.data.subscriptionPlan}'),
+                              'Subscription Level: ${user.data.subscriptionPlan}'),
                         ),
                         if (user.data.subscriptionPlan == 'free')
                           ListTile(
@@ -45,16 +45,18 @@ class ProfileScreen extends StatelessWidget {
                               padding: const EdgeInsets.all(8.0),
                               child: ElevatedButton(
                                 style: ElevatedButton.styleFrom(
-                                  primary: Theme.of(context)
+                                  backgroundColor: Theme.of(context)
                                       .colorScheme
                                       .secondary, // Set the button color to secondary color
                                 ),
                                 onPressed: () {
                                   // Update subscription plan to pro
                                   user.data.subscriptionPlan = 'pro';
-                                  Provider.of<UserProvider>(context, listen: false)
+                                  Provider.of<UserProvider>(context,
+                                          listen: false)
                                       .firebaseUser = user;
-                                  FirestoreService().updateDocument(user, 'users');
+                                  FirestoreService()
+                                      .updateDocument(user, 'users');
                                 },
                                 child: Text('Upgrade',
                                     style: TextStyle(
@@ -73,7 +75,7 @@ class ProfileScreen extends StatelessWidget {
                         ListTile(
                           leading: const Icon(Icons.countertops),
                           title: Text(
-                            'Recipes created: ${user!.metadata.recipeGenerationCount.length}/5',
+                            'Recipes created: ${user.metadata.recipeGenerationCount.length}/5',
                           ),
                         ),
                         ListTile(
@@ -81,7 +83,8 @@ class ProfileScreen extends StatelessWidget {
                             height: 10,
                             child: LinearProgressIndicator(
                               value:
-                                  user!.metadata.recipeGenerationCount.length / 5,
+                                  user.metadata.recipeGenerationCount.length /
+                                      5,
                               color: Theme.of(context).colorScheme.secondary,
                             ),
                           ),
@@ -91,20 +94,20 @@ class ProfileScreen extends StatelessWidget {
                   ),
                   const SizedBox(height: 20),
                   if (user.metadata.recipeGenerationCount.length >= 5)
-                    Container(
+                    SizedBox(
                       width: 200,
                       height: 50,
                       child: ElevatedButton(
                         style: ElevatedButton.styleFrom(
-                          primary: Theme.of(context)
+                          backgroundColor: Theme.of(context)
                               .colorScheme
                               .secondary, // Set the button color to secondary color
-                                               ),
+                        ),
                         onPressed: () {
                           // Update subscription plan to pro
                           user.data.subscriptionPlan = 'pro';
                           Provider.of<UserProvider>(context, listen: false)
-                                                           .firebaseUser = user;
+                              .firebaseUser = user;
                           FirestoreService().updateDocument(user, 'users');
                         },
                         child: const Text('Upgrade to Pro'),
@@ -115,12 +118,12 @@ class ProfileScreen extends StatelessWidget {
               ),
               Column(
                 children: [
-                  Container(
+                  SizedBox(
                     width: 200,
                     height: 50,
                     child: ElevatedButton(
                       style: ElevatedButton.styleFrom(
-                        primary: Theme.of(context)
+                        backgroundColor: Theme.of(context)
                             .colorScheme
                             .secondary, // Set the button color to secondary color
                       ),
@@ -131,16 +134,17 @@ class ProfileScreen extends StatelessWidget {
                       },
                       child: Text('Sign Out',
                           style: TextStyle(
-                              color: Theme.of(context).colorScheme.onSecondary)),
+                              color:
+                                  Theme.of(context).colorScheme.onSecondary)),
                     ),
                   ),
                   const SizedBox(height: 10),
-                  Container(
+                  SizedBox(
                     width: 200,
                     height: 50,
                     child: ElevatedButton(
                       style: ElevatedButton.styleFrom(
-                        primary: Theme.of(context)
+                        backgroundColor: Theme.of(context)
                             .colorScheme
                             .secondary, // Set the button color to secondary color
                       ),
@@ -177,7 +181,8 @@ class ProfileScreen extends StatelessWidget {
                       },
                       child: Text('Delete Account',
                           style: TextStyle(
-                              color: Theme.of(context).colorScheme.onSecondary)),
+                              color:
+                                  Theme.of(context).colorScheme.onSecondary)),
                     ),
                   ),
                 ],

@@ -15,12 +15,8 @@ class BottomNavBar extends StatelessWidget {
       },
       destinations: const [
         NavigationDestination(
-          icon: FaIcon(FontAwesomeIcons.magnifyingGlass),
-          label: 'Search',
-        ),
-        NavigationDestination(
-          icon: FaIcon(FontAwesomeIcons.plus),
-          label: 'Add',
+          icon: FaIcon(FontAwesomeIcons.bowlFood),
+          label: 'Recipes',
         ),
         NavigationDestination(icon: FaIcon(FontAwesomeIcons.list), label: 'Lists'),
         NavigationDestination(

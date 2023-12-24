@@ -1,7 +1,9 @@
+import 'dart:developer' as developer;
 // lib/services/firestore_service.dart
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_recipes/models/base_model.dart';
-import 'package:flutter_recipes/models/recipe_model.dart';
+import 'package:flutter_recipes/models/shopping_list/shopping_list_model.dart';
+import 'package:flutter_recipes/models/recipe/recipe_model.dart';
 
 class FirestoreService {
   final FirebaseFirestore _db = FirebaseFirestore.instance;
@@ -61,6 +63,20 @@ class FirestoreService {
         print("DOC: ${doc.data()}");
         print("RecipeModel: ${RecipeModel.fromJson(doc.data())}");
         return RecipeModel.fromJson(doc.data());
+      }).toList();
+    });
+  }
+
+  // Listen for changes to a user's list documents
+  Stream<List<ShoppingListModel>> listenToUserLists(String userId) {
+    return _db
+        .collection('lists')
+        .where('metadata.ownerId', isEqualTo: userId)
+        .snapshots()
+        .map((querySnapshot) {
+      return querySnapshot.docs.map((doc) {
+        developer.log("List doc ${doc.data()}", name: 'user lists');
+        return ShoppingListModel.fromJson(doc.data());
       }).toList();
     });
   }

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_recipes/models/user_model.dart';
+import 'package:flutter_recipes/models/user/user_model.dart';
 import 'package:flutter_recipes/providers/user_provider.dart';
 import 'package:flutter_recipes/shared/bottom_nav.dart';
 import 'package:flutter_recipes/shared/global_state.dart';
@@ -46,8 +46,7 @@ class AddRecipeScreen extends StatelessWidget {
                     context, user.metadata.hasCompletedTextAction);
                 if (recipeText != null) {
                   if (context.mounted) {
-                    recipeController.handleRecipeExtractionFromText(
-                        context, recipeText);
+                    recipeController.handleTextSelection(recipeText);
                   }
                 }
               },
@@ -61,8 +60,7 @@ class AddRecipeScreen extends StatelessWidget {
                     context, user.metadata.hasCompletedTextAction);
                 if (recipeText != null) {
                   if (context.mounted) {
-                    recipeController.handleRecipeExtractionFromText(
-                        context, recipeText);
+                    recipeController.handleTextSelection(recipeText);
                   }
                 }
               },

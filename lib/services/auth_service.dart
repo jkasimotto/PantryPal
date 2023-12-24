@@ -1,5 +1,5 @@
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter_recipes/models/user_model.dart' as models;
+import 'package:flutter_recipes/models/user/user_model.dart' as models;
 import 'package:flutter_recipes/providers/user_provider.dart';
 import 'package:flutter_recipes/services/firestore_service.dart';
 import 'package:flutter_recipes/services/logger.dart';
@@ -107,9 +107,11 @@ class AuthenticationService {
             hasCompletedYoutubeAction: false,
             hasCompletedCameraAction: false,
             hasCompletedWebAction: false);
-        models.UserModel newUserModel = models.UserModel(data: newUser, metadata: newMetadata);
+        models.UserModel newUserModel =
+            models.UserModel(data: newUser, metadata: newMetadata);
         await _firestoreService.createDocument(newUserModel, 'users');
-        await RecipeExtractionService().createInitialRecipes(user.uid, _firestoreService);
+        await RecipeExtractionService()
+            .createInitialRecipes(user.uid, _firestoreService);
         return newUserModel;
       } else {
         models.UserModel existingUser = await _firestoreService.readDocument(
@@ -123,12 +125,17 @@ class AuthenticationService {
             signInCount: existingUser.metadata.signInCount + 1,
             lastActive: DateTime.now(),
             recipeGenerationCount: existingUser.metadata.recipeGenerationCount,
-            hasCompletedHomeScreenTutorial: existingUser.metadata.hasCompletedHomeScreenTutorial,
-            hasCompletedTextAction: existingUser.metadata.hasCompletedTextAction,
-            hasCompletedYoutubeAction: existingUser.metadata.hasCompletedYoutubeAction,
-            hasCompletedCameraAction: existingUser.metadata.hasCompletedCameraAction,
+            hasCompletedHomeScreenTutorial:
+                existingUser.metadata.hasCompletedHomeScreenTutorial,
+            hasCompletedTextAction:
+                existingUser.metadata.hasCompletedTextAction,
+            hasCompletedYoutubeAction:
+                existingUser.metadata.hasCompletedYoutubeAction,
+            hasCompletedCameraAction:
+                existingUser.metadata.hasCompletedCameraAction,
             hasCompletedWebAction: existingUser.metadata.hasCompletedWebAction);
-        models.UserModel updatedUserModel = models.UserModel(data: updatedUser, metadata: updatedMetadata);
+        models.UserModel updatedUserModel =
+            models.UserModel(data: updatedUser, metadata: updatedMetadata);
         await _firestoreService.updateDocument(updatedUserModel, 'users');
         return updatedUserModel;
       }
@@ -136,20 +143,20 @@ class AuthenticationService {
     return null;
   }
 
-  void _setFirebaseUserInProvider(models.UserModel? user, BuildContext context) {
+  void _setFirebaseUserInProvider(
+      models.UserModel? user, BuildContext context) {
     Provider.of<UserProvider>(context, listen: false).firebaseUser = user;
   }
 
   Future<void> deleteAccount(BuildContext context) async {
-  User? user = _firebaseAuth.currentUser;
-  if (user != null) {
-    // Delete user data from Firestore
-    await _firestoreService.deleteDocument(user.uid, 'users');
-    // Delete user from Firebase Authentication
-    await user.delete();
-    // Sign out the user
-    await signOut(context);
+    User? user = _firebaseAuth.currentUser;
+    if (user != null) {
+      // Delete user data from Firestore
+      await _firestoreService.deleteDocument(user.uid, 'users');
+      // Delete user from Firebase Authentication
+      await user.delete();
+      // Sign out the user
+      await signOut(context);
+    }
   }
-}
-
 }

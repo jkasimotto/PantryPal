@@ -1,7 +1,7 @@
 import 'package:flip_card/flip_card_controller.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_recipes/models/recipe_method_step_model.dart';
 import 'package:flip_card/flip_card.dart';
+import 'package:flutter_recipes/models/method/recipe_method_step_model.dart';
 
 class MethodView extends StatefulWidget {
   final List<RecipeMethodStepData> methodData;

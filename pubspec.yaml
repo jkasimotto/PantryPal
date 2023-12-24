@@ -58,6 +58,7 @@ dependencies:
   showcaseview: ^2.0.3
   fl_chart: ^0.65.0
   flip_card: ^0.7.0
+  share: ^2.0.4
 
 dev_dependencies:
   flutter_test:
@@ -88,6 +89,7 @@ flutter:
   assets:
     - assets/emojis/
     - assets/images/
+    - assets/images/food/
 
 
   # An image asset can refer to one or more resolution-specific "variants", see

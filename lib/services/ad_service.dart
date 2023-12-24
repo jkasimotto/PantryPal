@@ -5,7 +5,7 @@ import 'package:flutter_recipes/shared/ad_helper.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'dart:developer' as developer;
 
-import 'package:provider/provider.dart'; // Import the developer package
+// Import the developer package
 
 class AdService {
   late InterstitialAd _interstitialAd;

@@ -1,16 +1,16 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_recipes/models/ingredient_model.dart';
+import 'package:flutter_recipes/models/ingredient/ingredient_with_quantity.dart';
 import 'package:flutter_recipes/screens/recipe_screen/ingredient_grid.dart';
 import 'package:flutter_recipes/screens/recipe_screen/recipe_controller.dart';
-import 'package:flutter_recipes/screens/recipe_screen/recipe_screen.dart';
 
 class IngredientGridCard extends StatelessWidget {
-  final List<IngredientData> _ingredients;
+  final List<IngredientWithQuantity> _ingredients;
   final RecipeController _recipeController;
   final Function(int) _onIngredientSave;
 
-  const IngredientGridCard({super.key, 
-    required List<IngredientData> ingredients,
+  const IngredientGridCard({
+    super.key,
+    required List<IngredientWithQuantity> ingredients,
     required RecipeController recipeController,
     required Function(int) onIngredientSave,
     required Function saveRecipe,

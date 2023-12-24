@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_recipes/models/recipe_model.dart';
-import 'package:flutter_recipes/models/user_model.dart';
+import 'package:flutter_recipes/models/recipe/recipe_model.dart';
+import 'package:flutter_recipes/models/user/user_model.dart';
 import 'package:flutter_recipes/shared/global_state.dart';
 import 'package:flutter_recipes/shared/global_keys.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -13,7 +13,8 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   final Function() handleShare;
   final Function() handleDelete;
 
-  CustomAppBar({
+  const CustomAppBar({
+    super.key,
     required this.user,
     required this.handleShoppingList,
     required this.handleShare,
@@ -23,6 +24,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   @override
   Widget build(BuildContext context) {
     return AppBar(
+      title: const Text("Recipes"),
       backgroundColor: Theme.of(context).colorScheme.background,
       actions: <Widget>[
         // Use Consumer or Selector to listen to changes in selectedRecipes
@@ -43,7 +45,8 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
                         color: Theme.of(context).colorScheme.onBackground,
                       ),
                       itemBuilder: (context) {
-                        var items = homeScreenState.selectedRecipes.values.map((recipe) {
+                        var items = homeScreenState.selectedRecipes.values
+                            .map((recipe) {
                           return PopupMenuItem<RecipeModel>(
                             value: recipe,
                             child: RecipeDropdownItem(recipe: recipe),
@@ -54,7 +57,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
                           PopupMenuItem<RecipeModel>(
                             child: ElevatedButton(
                               onPressed: () => handleShoppingList(context),
-                              child: Text('Create Shopping List'),
+                              child: const Text('Create Shopping List'),
                             ),
                           ),
                         );
@@ -121,16 +124,16 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   }
 
   @override
-  // TODO: implement preferredSize
   Size get preferredSize => const Size.fromHeight(kToolbarHeight);
 }
 
 class RecipeDropdownItem extends StatefulWidget {
   final RecipeModel recipe;
 
-  RecipeDropdownItem({required this.recipe});
+  const RecipeDropdownItem({super.key, required this.recipe});
 
   @override
+  // ignore: library_private_types_in_public_api
   _RecipeDropdownItemState createState() => _RecipeDropdownItemState();
 }
 
@@ -141,7 +144,9 @@ class _RecipeDropdownItemState extends State<RecipeDropdownItem> {
   void initState() {
     super.initState();
     GlobalState globalState = Provider.of<GlobalState>(context, listen: false);
-    servings = ValueNotifier<int>(globalState.selectedRecipesServings[widget.recipe.metadata.id] ?? widget.recipe.data.servings);
+    servings = ValueNotifier<int>(
+        globalState.selectedRecipesServings[widget.recipe.metadata.id] ??
+            widget.recipe.data.servings);
   }
 
   @override
@@ -149,24 +154,27 @@ class _RecipeDropdownItemState extends State<RecipeDropdownItem> {
     GlobalState globalState = Provider.of<GlobalState>(context);
     return ListTile(
       title: Text(widget.recipe.data.title),
-      subtitle: Text('Serves: ${globalState.selectedRecipesServings[widget.recipe.metadata.id] ?? servings.value}'),
+      subtitle: Text(
+          'Serves: ${globalState.selectedRecipesServings[widget.recipe.metadata.id] ?? servings.value}'),
       trailing: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
           IconButton(
-            icon: Icon(Icons.remove),
+            icon: const Icon(Icons.remove),
             onPressed: () {
               if (servings.value > 1) {
                 servings.value--;
-                globalState.updateSelectedRecipeServings(widget.recipe.metadata.id, servings.value);
+                globalState.updateSelectedRecipeServings(
+                    widget.recipe.metadata.id, servings.value);
               }
             },
           ),
           IconButton(
-            icon: Icon(Icons.add),
+            icon: const Icon(Icons.add),
             onPressed: () {
               servings.value++;
-              globalState.updateSelectedRecipeServings(widget.recipe.metadata.id, servings.value);
+              globalState.updateSelectedRecipeServings(
+                  widget.recipe.metadata.id, servings.value);
             },
           ),
         ],

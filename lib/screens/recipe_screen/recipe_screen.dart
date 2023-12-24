@@ -1,8 +1,10 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_recipes/models/ingredient_model.dart';
-import 'package:flutter_recipes/models/recipe_method_step_model.dart';
-import 'package:flutter_recipes/models/recipe_model.dart';
+import 'package:flutter_recipes/models/ingredient/ingredient_data.dart';
+import 'package:flutter_recipes/models/ingredient/ingredient_with_quantity.dart';
+import 'package:flutter_recipes/models/ingredient/nutritional_information.dart';
+import 'package:flutter_recipes/models/method/recipe_method_step_model.dart';
+import 'package:flutter_recipes/models/recipe/recipe_model.dart';
 import 'package:flutter_recipes/screens/recipe_screen/app_bar.dart';
 import 'package:flutter_recipes/screens/recipe_screen/cards/ingredient_card.dart';
 import 'package:flutter_recipes/screens/recipe_screen/cards/method_card.dart';
@@ -27,7 +29,7 @@ class RecipeScreen extends StatefulWidget {
 class _RecipeScreenState extends State<RecipeScreen> {
   final _firestoreService = FirestoreService();
   late RecipeController _recipeController;
-  late List<IngredientData> _ingredients;
+  late List<IngredientWithQuantity> _ingredients;
   late List<RecipeMethodStepData> _methodSteps;
 
   @override
@@ -47,8 +49,7 @@ class _RecipeScreenState extends State<RecipeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar:
-          RecipeScreenAppBar(_recipeController.titleController, _saveRecipe),
+      appBar: RecipeScreenAppBar(_saveRecipe),
       body: Padding(
         padding: const EdgeInsets.all(8.0),
         child: ListView(
@@ -82,41 +83,42 @@ class _RecipeScreenState extends State<RecipeScreen> {
     setState(() {
       // Update the existing ingredient data with the new values from the controllers
       if (index < _ingredients.length) {
-        _ingredients[index] = IngredientData(
-          name: _recipeController.ingredientNameControllers[index].text,
-          quantity: QuantityData(
-            units: _recipeController.ingredientUnitControllers[index].text,
-            value: double.tryParse(_recipeController
-                    .ingredientQuantityControllers[index].text) ??
-                0,
+        _ingredients[index] = IngredientWithQuantity(
+          ingredientData: IngredientData(
+            name: _recipeController.ingredientNameControllers[index].text,
+            form: _ingredients[index].ingredientData.form,
+            category: _ingredients[index].ingredientData.category,
+            nutritionalInformation:
+                _ingredients[index].ingredientData.nutritionalInformation,
+            shelfLife: _ingredients[index].ingredientData.shelfLife,
           ),
-          form: _ingredients[index].form,
-          category: _ingredients[index].category,
-          nutritionalInformation: _ingredients[index].nutritionalInformation,
-          shelfLife: _ingredients[index].shelfLife,
+          units: _recipeController.ingredientUnitControllers[index].text,
+          quantity: double.tryParse(_recipeController
+                  .ingredientQuantityControllers[index].text) ??
+              0,
         );
       }
 
       // If this is the last index, add a new ingredient and add new controllers
       if (index == _recipeController.ingredientNameControllers.length - 1) {
-        _ingredients.add(IngredientData(
-          name: _recipeController.ingredientNameControllers[index].text,
-          quantity: QuantityData(
-            units: _recipeController.ingredientUnitControllers[index].text,
-            value: double.tryParse(_recipeController
-                    .ingredientQuantityControllers[index].text) ??
-                0,
+        _ingredients.add(IngredientWithQuantity(
+          ingredientData: IngredientData(
+            name: _recipeController.ingredientNameControllers[index].text,
+            form: '',
+            category: '',
+            nutritionalInformation: NutritionalInformation(
+                calories: -1,
+                fats: -1,
+                carbohydrates: -1,
+                proteins: -1,
+                vitamins: -1,
+                minerals: -1),
+            shelfLife: '',
           ),
-          form: '',
-          category: '',
-          nutritionalInformation: NutritionalInformation(
-              calories: -1,
-              fats: -1,
-              carbohydrates: -1,
-              proteins: -1,
-              vitamins: -1,
-              minerals: -1),
-          shelfLife: '',
+          units: _recipeController.ingredientUnitControllers[index].text,
+          quantity: double.tryParse(_recipeController
+                  .ingredientQuantityControllers[index].text) ??
+              0,
         ));
 
         _recipeController.ingredientNameControllers

@@ -9,6 +9,7 @@ class YoutubeSelectDialog extends StatefulWidget {
       : super(key: key);
 
   @override
+  // ignore: library_private_types_in_public_api
   _YoutubeSelectDialogState createState() => _YoutubeSelectDialogState();
 }
 
@@ -56,8 +57,7 @@ class _YoutubeSelectDialogState extends State<YoutubeSelectDialog> {
               }
             },
           ),
-          if (isLoading)
-            CircularProgressIndicator(),
+          if (isLoading) const CircularProgressIndicator(),
           if (_thumbnailUrl != null)
             Padding(
               padding: const EdgeInsets.only(top: 8.0),

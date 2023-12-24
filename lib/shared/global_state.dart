@@ -1,6 +1,7 @@
 import 'dart:developer' as developer;
 import 'package:flutter/material.dart';
-import 'package:flutter_recipes/models/recipe_model.dart';
+import 'package:flutter_recipes/models/recipe/recipe_model.dart';
+import 'package:flutter_recipes/models/shopping_list/shopping_list_model.dart'; // Added this import
 import 'package:flutter_recipes/providers/user_provider.dart';
 import 'package:flutter_recipes/screens/home_screen/home_screen.dart';
 import 'package:flutter_recipes/services/firestore_service.dart';
@@ -14,8 +15,11 @@ class GlobalState extends ChangeNotifier {
 
   GlobalState(this.userProvider) {
     userProvider.addListener(_updateRecipeStream);
+    userProvider.addListener(_updateListStream);
     _updateRecipeStream();
-    developer.log('UserProvider initialized with user: ${userProvider.user}', name: 'GlobalState');
+    _updateListStream();
+    developer.log('UserProvider initialized with user: ${userProvider.user}',
+        name: 'GlobalState');
   }
 
   /// A `ValueNotifier` of `List<RecipeModel>` objects representing the recipes from StreamBuilder.
@@ -23,8 +27,17 @@ class GlobalState extends ChangeNotifier {
       ValueNotifier<List<RecipeModel>>([]);
   Stream<List<RecipeModel>>? _recipeStream;
 
+  final ValueNotifier<List<ShoppingListModel>> _lists =
+      ValueNotifier<List<ShoppingListModel>>([]);
+  Stream<List<ShoppingListModel>>? _listStream; // Added this line
+
+  ValueNotifier<List<ShoppingListModel>> get lists => _lists;
+
   /// A map of `RecipeModel` objects representing the selected recipes for share, delete, combine shopping list.
   final Map<String, RecipeModel> _selectedRecipes = {};
+
+  /// A map of `ShoppingListModel` objects representing the selected lists.
+  final Map<String, ShoppingListModel> _selectedLists = {}; // Added this line
 
   /// A map of `RecipeModel` objects representing the servings for each selected recipe.
   final Map<String, int> _selectedRecipesServings = {};
@@ -39,24 +52,21 @@ class GlobalState extends ChangeNotifier {
   /// An integer representing the minutes required for the recipe.
   int _minutesRequired = 180;
 
-  /// A list of `Difficulty` objects representing the selected difficulty levels.
-  List<Difficulty> _difficulty = [];
-
   /// A boolean representing the visibility of the filter.
   bool _isBottomSheetVisible = true;
 
-  /// This is a map where the key is the difficulty and the value is a boolean indicating whether it's selected or not
-  final Map<Difficulty, bool> _difficultyStates = {
-    Difficulty.easy: false,
-    Difficulty.medium: false,
-    Difficulty.hard: false,
-  };
+  /// A boolean representing the state of adding or searching recipes.
+  bool _isAddingOrSearchingRecipes = false;
 
   /// Getter for `_recipes`.
   ValueNotifier<List<RecipeModel>> get recipes => _recipes;
 
   /// Getter for `_selectedRecipes`.
   Map<String, RecipeModel> get selectedRecipes => _selectedRecipes;
+
+  /// Getter for `_selectedLists`.
+  Map<String, ShoppingListModel> get selectedLists =>
+      _selectedLists; // Added this line
 
   /// Getter for `_selectedRecipesServings`.
   Map<String, int> get selectedRecipesServings => _selectedRecipesServings;
@@ -70,22 +80,30 @@ class GlobalState extends ChangeNotifier {
   /// Getter for `_minutesRequired`.
   int get minutesRequired => _minutesRequired;
 
-  /// Getter for `_difficulty`.
-  List<Difficulty> get difficulty => _difficulty;
-
   /// Getter for `_isBottomSheetVisible`.
   bool get isBottomSheetVisible => _isBottomSheetVisible;
 
-  /// Getter for `_difficultyStates`.
-  Map<Difficulty, bool> get difficultyStates => _difficultyStates;
+  /// Getter for `_isAddingOrSearchingRecipes`.
+  bool get isAddingOrSearchingRecipes => _isAddingOrSearchingRecipes;
 
   void _updateRecipeStream() {
     if (userProvider.user != null) {
       developer.log('User updated: ${userProvider.user}', name: 'GlobalState');
-      _recipeStream = FirestoreService().listenToUserRecipes(userProvider.user!.id);
+      _recipeStream =
+          FirestoreService().listenToUserRecipes(userProvider.user!.id);
       _streamRecipes();
     } else {
       _recipeStream = null;
+    }
+  }
+
+  void _updateListStream() {
+    if (userProvider.user != null) {
+      developer.log('User updated: ${userProvider.user}', name: 'GlobalState');
+      _listStream = FirestoreService().listenToUserLists(userProvider.user!.id);
+      _streamLists();
+    } else {
+      _listStream = null;
     }
   }
 
@@ -93,6 +111,13 @@ class GlobalState extends ChangeNotifier {
     _recipeStream?.listen((newRecipes) {
       developer.log("NewRecipes: $newRecipes");
       _recipes.value = newRecipes;
+    });
+  }
+
+  void _streamLists() {
+    _listStream?.listen((newLists) {
+      developer.log("NewLists: $newLists");
+      _lists.value = newLists;
     });
   }
 
@@ -119,27 +144,15 @@ class GlobalState extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// Setter for `_difficulty`.
-  void setDifficulty(List<Difficulty> newDifficulty) {
-    _difficulty = newDifficulty;
-    notifyListeners();
-  }
-
   /// Setter for `_isBottomSheetVisible`.
   void toggleBottomSheetVisibility() {
     _isBottomSheetVisible = !_isBottomSheetVisible;
     notifyListeners();
   }
 
-  /// Adds a difficulty to the `_difficulty` list.
-  void addDifficulty(Difficulty newDifficulty) {
-    _difficulty.add(newDifficulty);
-    notifyListeners();
-  }
-
-  /// Removes a difficulty from the `_difficulty` list.
-  void removeDifficulty(Difficulty difficultyToRemove) {
-    _difficulty.remove(difficultyToRemove);
+  /// Setter for `_isAddingOrSearchingRecipes`.
+  void setAddingOrSearchingRecipes(bool value) {
+    _isAddingOrSearchingRecipes = value;
     notifyListeners();
   }
 
@@ -162,6 +175,17 @@ class GlobalState extends ChangeNotifier {
       _selectedRecipes[id] = recipe;
     } else {
       _selectedRecipes.remove(id);
+    }
+    notifyListeners();
+  }
+
+  /// Updates `_selectedLists` by adding or removing a list.
+  void updateSelectedLists(String id, bool value, ShoppingListModel list) {
+    // Added this method
+    if (value == true) {
+      _selectedLists[id] = list;
+    } else {
+      _selectedLists.remove(id);
     }
     notifyListeners();
   }
@@ -195,13 +219,4 @@ class GlobalState extends ChangeNotifier {
     updateSelectedRecipes(eggBagel.id, true, eggBagel);
   }
 
-  void toggleDifficulty(Difficulty difficulty) {
-    _difficultyStates[difficulty] = !_difficultyStates[difficulty]!;
-    if (_difficultyStates[difficulty]!) {
-      addDifficulty(difficulty);
-    } else {
-      removeDifficulty(difficulty);
-    }
-    notifyListeners();
-  }
 }
