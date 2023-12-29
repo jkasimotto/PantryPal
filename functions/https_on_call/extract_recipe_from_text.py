@@ -12,10 +12,10 @@ from util.logging import log_performance
 @https_fn.on_call(secrets=["OPENAI_API_KEY"], timeout_sec=540)
 def extract_recipe_from_text(req: https_fn.CallableRequest) -> Dict:
     # Authentication / user information is automatically added to the request.
-    # logging.info(f"User ID: {req.auth.uid}")
-    # logging.info(f"User Name: {req.auth.token.get('name', '')}")
-    # logging.info(f"User Picture: {req.auth.token.get('picture', '')}")
-    # logging.info(f"User Email: {req.auth.token.get('email', '')}")
+    logging.info(f"User ID: {req.auth.uid}")
+    logging.info(f"User Name: {req.auth.token.get('name', '')}")
+    logging.info(f"User Picture: {req.auth.token.get('picture', '')}")
+    logging.info(f"User Email: {req.auth.token.get('email', '')}")
 
     start_time = time.time()
     try:

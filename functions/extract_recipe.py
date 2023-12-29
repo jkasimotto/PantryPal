@@ -3,7 +3,7 @@ import logging
 import time
 from typing import Dict
 
-from model.model import Recipe
+from model.extraction.recipe import Recipe
 from util.logging import log_performance
 
 
@@ -19,7 +19,8 @@ def extract_recipe(text: str, openai_api_key: str) -> Dict:
         json_schema = Recipe.schema()  # Use Pydantic's schema method
         logging.info(f"JSON schema: {json_schema}")
 
-        logging.debug("Defining function and message for OpenAI API request...")
+        logging.debug(
+            "Defining function and message for OpenAI API request...")
         tools = [
             {
                 "type": "function",
@@ -57,6 +58,21 @@ def extract_recipe(text: str, openai_api_key: str) -> Dict:
         logging.debug("Parsing reply into JSON...")
         recipe_data = json.loads(reply)
         logging.debug(f"Recipe data: {recipe_data}")
+
+        # Add meta to each ingredient
+        for ingredient in recipe_data.get('ingredients', []):
+            ingredient['meta'] = {
+                'iconPath': 'assets/images/icons/food/default.png',  # Default or extracted value
+                'ingredientId': None  # Default or extracted value
+            }
+
+        # Add meta to the recipe
+        recipe_data['meta'] = {
+            'id': '',  # Default or extracted value
+            'ownerId': '',  # Default or extracted value
+            'source': 'text',  # Assuming TEXT is a valid source from your enum
+            'status': 'success'  # Assuming ACTIVE is a valid status from your enum
+        }
 
         log_performance(start_time, "Recipe extraction from text")
         logging.info("Recipe extraction successful.")

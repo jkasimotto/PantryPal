@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_recipes/shared/ingredient_icon.dart'; // Import the ingredient icon
 
 // Base class for ingredient cards
 abstract class BaseIngredientCard extends StatelessWidget {
@@ -34,23 +35,32 @@ class IngredientCard extends BaseIngredientCard {
   final TextEditingController nameController;
   final TextEditingController quantityController;
   final TextEditingController unitController;
+  final String iconPath;
 
   IngredientCard({
     Key? key,
     required this.nameController,
     required this.quantityController,
     required this.unitController,
+    required this.iconPath,
     required Color borderColor,
   }) : super(
           key: key,
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: <Widget>[
-              Text(
-                '${nameController.text}\n${_formatQuantity(quantityController.text)} ${unitController.text}',
-                textAlign: TextAlign.center,
-              ),
-            ],
+          child: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Column(
+              children: [
+                Expanded(
+                  child:
+                      buildIngredientIcon(iconPath), // Add the ingredient icon
+                ),
+                Text(
+                  '${nameController.text}\n${_formatQuantity(quantityController.text)} ${unitController.text}',
+                  style: const TextStyle(fontSize: 12),
+                  textAlign: TextAlign.center,
+                ),
+              ],
+            ),
           ),
           borderColor: borderColor,
         );
@@ -59,7 +69,9 @@ class IngredientCard extends BaseIngredientCard {
   static String _formatQuantity(String quantity) {
     double? value = double.tryParse(quantity);
     if (value != null && value == value.toInt().toDouble()) {
-      return value.toInt().toString(); // Convert to integer string if ends with .0
+      return value
+          .toInt()
+          .toString(); // Convert to integer string if ends with .0
     }
     return quantity; // Return the original string if it's not a float ending with .0
   }

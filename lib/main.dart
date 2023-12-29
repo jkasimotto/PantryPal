@@ -7,6 +7,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_recipes/firebase_options.dart';
 import 'package:flutter_recipes/providers/ad_provider.dart';
 import 'package:flutter_recipes/providers/bottom_nav_provider.dart';
+import 'package:flutter_recipes/providers/recipe_filter_provider.dart';
+import 'package:flutter_recipes/providers/recipe_provider.dart';
+import 'package:flutter_recipes/providers/selected_recipes_provider.dart';
+import 'package:flutter_recipes/providers/selected_shopping_list_provider.dart';
+import 'package:flutter_recipes/providers/shopping_list_provider.dart';
+import 'package:flutter_recipes/providers/ui_provider.dart';
+import 'package:flutter_recipes/services/firestore_service.dart';
 import 'package:flutter_recipes/shared/global_state.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart'; // Added this line
 import 'package:provider/provider.dart';
@@ -33,7 +40,6 @@ void main() async {
   FirebaseStorage storage = FirebaseStorage.instance;
   FirebaseFunctions functions = FirebaseFunctions.instance;
   AuthenticationService authService = AuthenticationService(auth);
-  UserProvider userProvider = UserProvider(); // Added this line
 
   Logger logger = Logger();
   bool useFirebaseEmulator =
@@ -59,6 +65,26 @@ void main() async {
     });
   }
 
+  // Initialize providers with dependencies
+
+  // User Provider
+  UserProvider userProvider = UserProvider(); // Added this line
+
+  // Recipe Providers
+  RecipeProvider recipeProvider = RecipeProvider(userProvider: userProvider);
+  SelectedRecipeProvider selectedRecipeProvider =
+      SelectedRecipeProvider(recipeProvider: recipeProvider);
+  RecipeFilterProvider recipeFilterProvider = RecipeFilterProvider();
+
+  // Shopping List Providers
+  ShoppingListProvider shoppingListProvider =
+      ShoppingListProvider(userProvider: userProvider);
+  SelectedShoppingListProvider selectedShoppingListProvider =
+      SelectedShoppingListProvider();
+
+  // UI Provider
+  UIProvider uiProvider = UIProvider();
+
   runApp(
     // COmment
     ShowCaseWidget(
@@ -76,9 +102,25 @@ void main() async {
             ),
             ChangeNotifierProvider(
                 create: (context) => GlobalState(userProvider)),
-                 ChangeNotifierProvider(
-                create: (context) => AdProvider()),
-            // Add other providers here
+            ChangeNotifierProvider(create: (context) => AdProvider()),
+            ChangeNotifierProvider(
+              create: (context) => recipeProvider,
+            ),
+            ChangeNotifierProvider(
+              create: (context) => selectedRecipeProvider,
+            ),
+            ChangeNotifierProvider(
+              create: (context) => recipeFilterProvider,
+            ),
+            ChangeNotifierProvider(
+              create: (context) => shoppingListProvider,
+            ),
+            ChangeNotifierProvider(
+              create: (context) => selectedShoppingListProvider,
+            ),
+            ChangeNotifierProvider(
+              create: (context) => uiProvider,
+            ),
           ],
           child: const MyApp(),
         ),

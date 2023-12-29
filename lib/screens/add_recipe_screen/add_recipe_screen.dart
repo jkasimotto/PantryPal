@@ -7,7 +7,7 @@ import 'package:flutter_recipes/services/ad_service.dart';
 import 'package:flutter_recipes/services/firestore_service.dart';
 import 'package:flutter_recipes/services/user_input_service.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:flutter_recipes/controllers/recipe_controller.dart';
+import 'package:flutter_recipes/controllers/recipe_logic_controller.dart';
 import 'package:provider/provider.dart';
 
 class AddRecipeScreen extends StatelessWidget {
@@ -18,7 +18,7 @@ class AddRecipeScreen extends StatelessWidget {
     UserProvider userProvider = Provider.of<UserProvider>(context);
     UserModel? user = userProvider.user;
     UserInputService userInputService = UserInputService();
-    RecipeController recipeController = RecipeController(
+    RecipeLogicController recipeController = RecipeLogicController(
       firestoreService: FirestoreService(),
       homeScreenState: Provider.of<GlobalState>(context),
       userProvider: Provider.of<UserProvider>(context),
@@ -46,7 +46,7 @@ class AddRecipeScreen extends StatelessWidget {
                     context, user.metadata.hasCompletedTextAction);
                 if (recipeText != null) {
                   if (context.mounted) {
-                    recipeController.handleTextSelection(recipeText);
+                    recipeController.extractRecipeFromText(recipeText);
                   }
                 }
               },
@@ -60,7 +60,7 @@ class AddRecipeScreen extends StatelessWidget {
                     context, user.metadata.hasCompletedTextAction);
                 if (recipeText != null) {
                   if (context.mounted) {
-                    recipeController.handleTextSelection(recipeText);
+                    recipeController.extractRecipeFromText(recipeText);
                   }
                 }
               },
@@ -73,7 +73,7 @@ class AddRecipeScreen extends StatelessWidget {
                 final url = await userInputService.selectUrl(
                     context, user.metadata.hasCompletedWebAction);
                 if (url != null) {
-                  recipeController.handleUrlSelection(url);
+                  recipeController.extractRecipeFromWebUrl(url);
                 }
               },
             ),
@@ -85,7 +85,7 @@ class AddRecipeScreen extends StatelessWidget {
                 final mediaList =
                     await userInputService.showImageSourceSelection(context);
                 if (mediaList != null) {
-                  recipeController.handleImageSelection(mediaList);
+                  recipeController.extractRecipeFromImages(mediaList);
                 }
               },
             ),
@@ -97,7 +97,7 @@ class AddRecipeScreen extends StatelessWidget {
                 final mediaList =
                     await userInputService.showImageSourceSelection(context);
                 if (mediaList != null) {
-                  recipeController.handleImageSelection(mediaList);
+                  recipeController.extractRecipeFromImages(mediaList);
                 }
               },
             ),

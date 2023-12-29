@@ -6,11 +6,11 @@ import 'package:json_annotation/json_annotation.dart';
 enum ShoppingLocation {
   @JsonValue('Produce')
   Produce,
-  @JsonValue('Meat_Seafood')
+  @JsonValue('Meat & Seafood')
   Meat_Seafood,
   @JsonValue('Dairy')
   Dairy,
-  @JsonValue('Frozen_Foods')
+  @JsonValue('Frozen Foods')
   Frozen_Foods,
   @JsonValue('Aisle')
   Aisle,

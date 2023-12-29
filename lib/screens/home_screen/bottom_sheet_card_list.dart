@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_recipes/controllers/recipe_controller.dart';
+import 'package:flutter_recipes/controllers/recipe_logic_controller.dart';
 import 'package:flutter_recipes/models/user/user_model.dart';
 import 'package:flutter_recipes/providers/user_provider.dart';
 import 'package:flutter_recipes/screens/home_screen/dialogs/cookbook_input_dialog.dart';
@@ -12,7 +12,7 @@ import 'package:provider/provider.dart';
 class BottomSheetCardList extends StatelessWidget {
   final UserProvider userProvider;
   final UserInputService userInputService;
-  final RecipeController recipeController;
+  final RecipeLogicController recipeController;
   final ScrollController _scrollController =
       ScrollController(initialScrollOffset: 20.0); // Add this line
 
@@ -64,7 +64,7 @@ class BottomSheetCardList extends StatelessWidget {
                     context, user.metadata.hasCompletedTextAction);
                 if (recipeText != null) {
                   if (context.mounted) {
-                    recipeController.handleTextSelection(recipeText);
+                    recipeController.extractRecipeFromText(recipeText);
                   }
                 }
               },
@@ -78,7 +78,7 @@ class BottomSheetCardList extends StatelessWidget {
                     context, user.metadata.hasCompletedTextAction);
                 if (recipeText != null) {
                   if (context.mounted) {
-                    recipeController.handleTextSelection(recipeText);
+                    recipeController.extractRecipeFromText(recipeText);
                   }
                 }
               },
@@ -91,7 +91,7 @@ class BottomSheetCardList extends StatelessWidget {
                 final url = await userInputService.selectUrl(
                     context, user.metadata.hasCompletedWebAction);
                 if (url != null) {
-                  recipeController.handleUrlSelection(url);
+                  recipeController.extractRecipeFromWebUrl(url);
                 }
               },
             ),
@@ -108,7 +108,7 @@ class BottomSheetCardList extends StatelessWidget {
                 // final mediaList =
                 //     await userInputService.showImageSourceSelection(context);
                 if (mediaList != null) {
-                  recipeController.handleImageSelection(
+                  recipeController.extractRecipeFromImages(
                     mediaList.values
                         .expand((element) => element)
                         .where((element) => element != null)
@@ -126,7 +126,7 @@ class BottomSheetCardList extends StatelessWidget {
                 final mediaList =
                     await userInputService.showImageSourceSelection(context);
                 if (mediaList != null) {
-                  recipeController.handleImageSelection(mediaList);
+                  recipeController.extractRecipeFromImages(mediaList);
                 }
               },
             ),

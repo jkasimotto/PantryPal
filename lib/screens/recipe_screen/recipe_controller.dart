@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_recipes/models/recipe/recipe_model.dart';
+import 'package:flutter_recipes/models/recipe/recipe.dart';
 
 class RecipeController {
   late TextEditingController titleController;
@@ -19,46 +19,43 @@ class RecipeController {
 
   List<List<TextEditingController>> methodControllers = [];
 
-  RecipeController(RecipeModel recipe) {
-    titleController = TextEditingController(text: recipe.data.title);
+  RecipeController(Recipe recipe) {
+    titleController = TextEditingController(text: recipe.title);
     ingredientsController =
-        TextEditingController(text: recipe.data.ingredients.join('\n'));
-    methodController =
-        TextEditingController(text: recipe.data.method.join('\n'));
+        TextEditingController(text: recipe.ingredients.join('\n'));
+    methodController = TextEditingController(text: recipe.method.join('\n'));
     timeRequiredController =
-        TextEditingController(text: recipe.data.totalTime.toString());
-    cuisineController = TextEditingController(text: recipe.data.cuisine);
-    courseController = TextEditingController(text: recipe.data.course);
+        TextEditingController(text: recipe.totalTime.toString());
+    cuisineController = TextEditingController(text: recipe.cuisine);
+    courseController = TextEditingController(text: recipe.course);
     servingsController =
-        TextEditingController(text: recipe.data.servings.toString());
+        TextEditingController(text: recipe.servings.toString());
     prepTimeController =
-        TextEditingController(text: recipe.data.prepTime.toString());
+        TextEditingController(text: recipe.prepTime.toString());
     cookTimeController =
-        TextEditingController(text: recipe.data.cookTime.toString());
-    notesController = TextEditingController(text: recipe.data.notes ?? '');
+        TextEditingController(text: recipe.cookTime.toString());
+    notesController = TextEditingController(text: recipe.notes ?? '');
 
     ingredientNameControllers = List.generate(
-      recipe.data.ingredients.length,
-      (index) => TextEditingController(
-          text: recipe.data.ingredients[index].ingredientData.name),
+      recipe.ingredients.length,
+      (index) => TextEditingController(text: recipe.ingredients[index].name),
     );
     ingredientQuantityControllers = List.generate(
-      recipe.data.ingredients.length,
+      recipe.ingredients.length,
       (index) => TextEditingController(
-          text: recipe.data.ingredients[index].quantity.toString()),
+          text: recipe.ingredients[index].quantity.amount.toString()),
     );
     ingredientUnitControllers = List.generate(
-      recipe.data.ingredients.length,
+      recipe.ingredients.length,
       (index) => TextEditingController(
-          text: recipe.data.ingredients[index].units.toString()),
+          text: recipe.ingredients[index].quantity.units.toString()),
     );
 
     methodControllers = List.generate(
-      recipe.data.method.length,
+      recipe.method.length,
       (index) => [
-        TextEditingController(
-            text: recipe.data.method[index].stepNumber.toString()),
-        TextEditingController(text: recipe.data.method[index].description),
+        TextEditingController(text: recipe.method[index].stepNumber.toString()),
+        TextEditingController(text: recipe.method[index].description),
         // Add more controllers for each field in RecipeMethodStepData
       ],
     );

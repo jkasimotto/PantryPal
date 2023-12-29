@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-class TimerInfoCard extends StatelessWidget {
-  const TimerInfoCard({
+class RecipeDocTimerCard extends StatelessWidget {
+  const RecipeDocTimerCard({
     super.key,
     required TextEditingController prepTimeController,
     required TextEditingController cookTimeController,

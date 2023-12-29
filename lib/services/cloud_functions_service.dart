@@ -1,8 +1,9 @@
 import 'dart:developer' as developer;
 import 'dart:convert';
 import 'package:cloud_functions/cloud_functions.dart';
-import 'package:flutter_recipes/models/recipe/recipe_model.dart';
-import 'package:flutter_recipes/models/shopping_list/shopping_list_model.dart';
+import 'package:flutter_recipes/models/ingredient/ingredient.dart';
+import 'package:flutter_recipes/models/recipe/recipe.dart';
+import 'package:flutter_recipes/models/status.dart';
 
 Future<String> transcribeAudio(String audioBase64) async {
   try {
@@ -44,8 +45,8 @@ Future<String> transcribeYoutubeVideo(String videoUrl) async {
   }
 }
 
-Future<List<ShoppingListIngredientData>> combineIngredients(
-    List<RecipeModel> recipes) async {
+Future<List<ShoppingListIngredient>> combineIngredients(
+    List<Recipe> recipes) async {
   try {
     var recipesJson =
         jsonEncode(recipes.map((recipe) => recipe.toJson()).toList());
@@ -62,8 +63,8 @@ Future<List<ShoppingListIngredientData>> combineIngredients(
       print("DECODED $decodedData");
 
       // Parse the ingredients from the result data
-      List<ShoppingListIngredientData> ingredients = (decodedData as List)
-          .map((ingredient) => ShoppingListIngredientData.fromJson(ingredient))
+      List<ShoppingListIngredient> ingredients = (decodedData as List)
+          .map((ingredient) => ShoppingListIngredient.fromJson(ingredient))
           .toList();
       return ingredients;
     } else {
@@ -78,7 +79,7 @@ Future<List<ShoppingListIngredientData>> combineIngredients(
   }
 }
 
-Future<RecipeData> extractRecipeDataFromText(String text) async {
+Future<Recipe> extractRecipeFromText(String text) async {
   try {
     // Call the function
     final result = await FirebaseFunctions.instance
@@ -90,7 +91,7 @@ Future<RecipeData> extractRecipeDataFromText(String text) async {
     if (result.data['status'] == 'success') {
       // Bit of a hack that works.
       var recipe = jsonDecode(jsonEncode(result.data))['recipe'];
-      return RecipeData.fromJson(recipe.cast<String, dynamic>());
+      return Recipe.fromJson(recipe.cast<String, dynamic>());
     } else {
       print('Error: ${result.data['error']}');
       return Future.error(result.data['error']);
@@ -103,7 +104,7 @@ Future<RecipeData> extractRecipeDataFromText(String text) async {
   }
 }
 
-Future<RecipeData> extractRecipeFromImages(List<String> base64Images) async {
+Future<Recipe> extractRecipeFromImages(List<String> base64Images) async {
   try {
     // Call the function
     final result = await FirebaseFunctions.instance
@@ -112,7 +113,7 @@ Future<RecipeData> extractRecipeFromImages(List<String> base64Images) async {
                 HttpsCallableOptions(timeout: const Duration(seconds: 540)))
         .call({'images': base64Images});
 
-    RecipeData recipe = await extractRecipeDataFromText(result.data['text']);
+    Recipe recipe = await extractRecipeFromText(result.data['text']);
 
     // Return the recipe
     return recipe;
@@ -124,7 +125,7 @@ Future<RecipeData> extractRecipeFromImages(List<String> base64Images) async {
   }
 }
 
-Future<RecipeData> extractRecipeFromWebpage(String url) async {
+Future<Recipe> extractRecipeFromWebpage(String url) async {
   try {
     // Call the function
     final result = await FirebaseFunctions.instance
@@ -138,12 +139,59 @@ Future<RecipeData> extractRecipeFromWebpage(String url) async {
 
     if (result.data['status'] == 'success') {
       var recipe = result.data['recipe'] as Map;
-      // Convert the result data to a RecipeModel
-      return RecipeData.fromJson(Map<String, dynamic>.from(recipe));
+      // Convert the result data to a Recipe
+      return Recipe.fromJson(Map<String, dynamic>.from(recipe));
     } else {
       print('Error: ${result.data['error']}');
       return Future.error(result.data['error']);
     }
+  } on FirebaseFunctionsException catch (error) {
+    print('Error code: ${error.code}');
+    print('Error message: ${error.message}');
+    print('Error details: ${error.details}');
+    return Future.error(error);
+  }
+}
+
+Future<Map<String, dynamic>> addIngredientIconPathToRecipe(
+    String recipeId) async {
+  try {
+    // Call the function
+    final HttpsCallable callable = FirebaseFunctions.instance.httpsCallable(
+      'add_ingredient_icon_path_to_recipe',
+      options: HttpsCallableOptions(timeout: const Duration(seconds: 540)),
+    );
+    final HttpsCallableResult result = await callable.call(
+      <String, dynamic>{
+        'recipe_id': recipeId,
+      },
+    );
+
+    // Return the result
+    return result.data as Map<String, dynamic>;
+  } on FirebaseFunctionsException catch (error) {
+    print('Error code: ${error.code}');
+    print('Error message: ${error.message}');
+    print('Error details: ${error.details}');
+    return Future.error(error);
+  }
+}
+
+Future<Map<String, dynamic>> addIngredientIconPathToList(String listId) async {
+  try {
+    // Call the function
+    final HttpsCallable callable = FirebaseFunctions.instance.httpsCallable(
+      'add_ingredient_icon_path_to_list',
+      options: HttpsCallableOptions(timeout: const Duration(seconds: 540)),
+    );
+    final HttpsCallableResult result = await callable.call(
+      <String, dynamic>{
+        'list_id': listId,
+      },
+    );
+
+    // Return the result
+    return result.data as Map<String, dynamic>;
   } on FirebaseFunctionsException catch (error) {
     print('Error code: ${error.code}');
     print('Error message: ${error.message}');

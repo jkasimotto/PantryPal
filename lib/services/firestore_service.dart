@@ -2,8 +2,9 @@ import 'dart:developer' as developer;
 // lib/services/firestore_service.dart
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_recipes/models/base_model.dart';
-import 'package:flutter_recipes/models/shopping_list/shopping_list_model.dart';
-import 'package:flutter_recipes/models/recipe/recipe_model.dart';
+import 'package:flutter_recipes/models/ingredient/ingredient.dart';
+import 'package:flutter_recipes/models/shopping_list/shopping_list.dart';
+import 'package:flutter_recipes/models/recipe/recipe.dart';
 
 class FirestoreService {
   final FirebaseFirestore _db = FirebaseFirestore.instance;
@@ -52,31 +53,62 @@ class FirestoreService {
     return doc.exists;
   }
 
-  // Listen for changes to a user's recipe documents
-  Stream<List<RecipeModel>> listenToUserRecipes(String userId) {
+  /// Listens to a user's recipe documents in Firestore.
+  ///
+  /// This function fetches each recipe document for a specific user and hydrates
+  /// the icon path for each ingredient from the related ingredient documents.
+  /// If an ingredient document does not exist or does not have an icon path,
+  /// a default icon path is used.
+  Stream<List<Recipe>> listenToUserRecipes(String userId) {
+    // Listen to the user's recipe documents in Firestore
     return _db
         .collection('recipes')
-        .where('metadata.ownerId', isEqualTo: userId)
+        .where('meta.ownerId', isEqualTo: userId)
         .snapshots()
-        .map((querySnapshot) {
-      return querySnapshot.docs.map((doc) {
-        print("DOC: ${doc.data()}");
-        print("RecipeModel: ${RecipeModel.fromJson(doc.data())}");
-        return RecipeModel.fromJson(doc.data());
-      }).toList();
+        .asyncMap((querySnapshot) async {
+      // For each recipe document, fetch the ingredient documents and hydrate the icon path
+      return await Future.wait(querySnapshot.docs.map((doc) async {
+        var recipeData = doc.data();
+        var recipe = Recipe.fromJson(recipeData);
+        List<IngredientWithQuantity> updatedIngredients = [];
+
+        for (var ingredientWithQuantity in recipe.ingredients) {
+          var ingredientId = ingredientWithQuantity.meta.ingredientId;
+          // Fetch the ingredient document using the ingredient ID
+          var ingredientDoc =
+              await _db.collection('ingredients').doc(ingredientId).get();
+          String iconPath =
+              'assets/images/icons/food/default.png'; // Default icon path
+
+          if (ingredientDoc.exists) {
+            iconPath = ingredientDoc.data()?['iconPath'] ?? iconPath;
+          }
+
+          // Update the ingredient with the new iconPath
+          var updatedIngredient =
+              ingredientWithQuantity.copyWith(iconPath: iconPath);
+          updatedIngredients.add(updatedIngredient);
+        }
+
+        // Create a new recipe with the updated ingredients
+        var updatedRecipeData = Map<String, dynamic>.from(recipeData);
+        updatedRecipeData['ingredients'] =
+            updatedIngredients.map((i) => i.toJson()).toList();
+        return Recipe.fromJson(updatedRecipeData);
+      }).toList());
     });
   }
 
   // Listen for changes to a user's list documents
-  Stream<List<ShoppingListModel>> listenToUserLists(String userId) {
+  Stream<List<ShoppingList>> listenToUserLists(String userId) {
     return _db
         .collection('lists')
-        .where('metadata.ownerId', isEqualTo: userId)
+        .where('meta.ownerId', isEqualTo: userId)
         .snapshots()
         .map((querySnapshot) {
       return querySnapshot.docs.map((doc) {
         developer.log("List doc ${doc.data()}", name: 'user lists');
-        return ShoppingListModel.fromJson(doc.data());
+        return ShoppingList.fromJson(doc.data());
       }).toList();
     });
   }

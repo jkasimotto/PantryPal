@@ -1,12 +1,11 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:flutter_recipes/models/recipe/recipe_model.dart';
-import 'package:flutter_recipes/models/recipe/source.dart';
+import 'package:flutter_recipes/models/recipe/recipe.dart';
 import 'package:flutter_recipes/shared/linear_progress_with_widget.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 class LoadingRecipeCard extends StatefulWidget {
-  final RecipeModel recipe;
+  final Recipe recipe;
 
   const LoadingRecipeCard({Key? key, required this.recipe}) : super(key: key);
 
@@ -31,17 +30,17 @@ class _LoadingRecipeCardState extends State<LoadingRecipeCard>
   @override
   void initState() {
     super.initState();
-    switch (widget.recipe.metadata.source) {
-      case Source.text:
+    switch (widget.recipe.meta.source) {
+      case RecipeSource.text:
         durationSeconds = 100;
         break;
-      case Source.image:
-        durationSeconds = 280;
+      case RecipeSource.image:
+        durationSeconds = 180;
         break;
-      case Source.webpage:
+      case RecipeSource.webpage:
         durationSeconds = 40;
         break;
-      case Source.youtube:
+      case RecipeSource.youtube:
         durationSeconds = 90;
         break;
       default:
@@ -83,17 +82,17 @@ class _LoadingRecipeCardState extends State<LoadingRecipeCard>
   @override
   Widget build(BuildContext context) {
     IconData iconData;
-    switch (widget.recipe.metadata.source) {
-      case Source.text:
+    switch (widget.recipe.meta.source) {
+      case RecipeSource.text:
         iconData = FontAwesomeIcons.textHeight;
         break;
-      case Source.image:
+      case RecipeSource.image:
         iconData = FontAwesomeIcons.image;
         break;
-      case Source.webpage:
+      case RecipeSource.webpage:
         iconData = FontAwesomeIcons.chrome;
         break;
-      case Source.youtube:
+      case RecipeSource.youtube:
         iconData = FontAwesomeIcons.youtube;
         break;
       default:

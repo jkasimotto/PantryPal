@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_recipes/models/method/recipe_method_step_model.dart';
 import 'package:flutter_recipes/screens/recipe_screen/method_view.dart';
 
-class MethodInfoCard extends StatelessWidget {
-  const MethodInfoCard({
+class RecipeDocMethodListCard extends StatelessWidget {
+  const RecipeDocMethodListCard({
     super.key,
     required List<RecipeMethodStepData> methodSteps,
     required List<List<TextEditingController>> methodControllers,

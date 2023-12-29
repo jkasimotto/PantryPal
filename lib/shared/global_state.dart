@@ -1,7 +1,7 @@
 import 'dart:developer' as developer;
 import 'package:flutter/material.dart';
-import 'package:flutter_recipes/models/recipe/recipe_model.dart';
-import 'package:flutter_recipes/models/shopping_list/shopping_list_model.dart'; // Added this import
+import 'package:flutter_recipes/models/recipe/recipe.dart';
+import 'package:flutter_recipes/models/shopping_list/shopping_list.dart'; // Added this import
 import 'package:flutter_recipes/providers/user_provider.dart';
 import 'package:flutter_recipes/screens/home_screen/home_screen.dart';
 import 'package:flutter_recipes/services/firestore_service.dart';
@@ -22,24 +22,23 @@ class GlobalState extends ChangeNotifier {
         name: 'GlobalState');
   }
 
-  /// A `ValueNotifier` of `List<RecipeModel>` objects representing the recipes from StreamBuilder.
-  final ValueNotifier<List<RecipeModel>> _recipes =
-      ValueNotifier<List<RecipeModel>>([]);
-  Stream<List<RecipeModel>>? _recipeStream;
+  /// A `ValueNotifier` of `List<Recipe>` objects representing the recipes from StreamBuilder.
+  final ValueNotifier<List<Recipe>> _recipes = ValueNotifier<List<Recipe>>([]);
+  Stream<List<Recipe>>? _recipeStream;
 
-  final ValueNotifier<List<ShoppingListModel>> _lists =
-      ValueNotifier<List<ShoppingListModel>>([]);
-  Stream<List<ShoppingListModel>>? _listStream; // Added this line
+  final ValueNotifier<List<ShoppingList>> _lists =
+      ValueNotifier<List<ShoppingList>>([]);
+  Stream<List<ShoppingList>>? _listStream; // Added this line
 
-  ValueNotifier<List<ShoppingListModel>> get lists => _lists;
+  ValueNotifier<List<ShoppingList>> get lists => _lists;
 
-  /// A map of `RecipeModel` objects representing the selected recipes for share, delete, combine shopping list.
-  final Map<String, RecipeModel> _selectedRecipes = {};
+  /// A map of `Recipe` objects representing the selected recipes for share, delete, combine shopping list.
+  final Map<String, Recipe> _selectedRecipes = {};
 
-  /// A map of `ShoppingListModel` objects representing the selected lists.
-  final Map<String, ShoppingListModel> _selectedLists = {}; // Added this line
+  /// A map of `ShoppingList` objects representing the selected lists.
+  final Map<String, ShoppingList> _selectedLists = {}; // Added this line
 
-  /// A map of `RecipeModel` objects representing the servings for each selected recipe.
+  /// A map of `Recipe` objects representing the servings for each selected recipe.
   final Map<String, int> _selectedRecipesServings = {};
 
   /// A string representing the current search query.
@@ -59,13 +58,13 @@ class GlobalState extends ChangeNotifier {
   bool _isAddingOrSearchingRecipes = false;
 
   /// Getter for `_recipes`.
-  ValueNotifier<List<RecipeModel>> get recipes => _recipes;
+  ValueNotifier<List<Recipe>> get recipes => _recipes;
 
   /// Getter for `_selectedRecipes`.
-  Map<String, RecipeModel> get selectedRecipes => _selectedRecipes;
+  Map<String, Recipe> get selectedRecipes => _selectedRecipes;
 
   /// Getter for `_selectedLists`.
-  Map<String, ShoppingListModel> get selectedLists =>
+  Map<String, ShoppingList> get selectedLists =>
       _selectedLists; // Added this line
 
   /// Getter for `_selectedRecipesServings`.
@@ -134,7 +133,7 @@ class GlobalState extends ChangeNotifier {
   }
 
   /// Setter for `_recipes`.
-  void setRecipes(List<RecipeModel> newRecipes) {
+  void setRecipes(List<Recipe> newRecipes) {
     _recipes.value = newRecipes;
   }
 
@@ -170,7 +169,7 @@ class GlobalState extends ChangeNotifier {
   }
 
   /// Updates `_selectedRecipes` by adding or removing a recipe.
-  void updateSelectedRecipes(String id, bool value, RecipeModel recipe) {
+  void updateSelectedRecipes(String id, bool value, Recipe recipe) {
     if (value == true) {
       _selectedRecipes[id] = recipe;
     } else {
@@ -180,7 +179,7 @@ class GlobalState extends ChangeNotifier {
   }
 
   /// Updates `_selectedLists` by adding or removing a list.
-  void updateSelectedLists(String id, bool value, ShoppingListModel list) {
+  void updateSelectedLists(String id, bool value, ShoppingList list) {
     // Added this method
     if (value == true) {
       _selectedLists[id] = list;
@@ -209,14 +208,22 @@ class GlobalState extends ChangeNotifier {
     super.dispose();
   }
 
-  Future<void> selectDefaultRecipes() async {
-    // Get the two default recipes
-    RecipeModel softBoiledEgg = recipes.value[0];
-    RecipeModel eggBagel = recipes.value[1];
+  void selectDefaultRecipesWhenAvailable() {
+    // Listen to the recipes ValueNotifier
+    _recipes.addListener(() {
+      // Check if there are at least two recipes
+      if (_recipes.value.length >= 2) {
+        // Get the two default recipes
+        Recipe softBoiledEgg = _recipes.value[0];
+        Recipe eggBagel = _recipes.value[1];
 
-    // Select the recipes
-    updateSelectedRecipes(softBoiledEgg.id, true, softBoiledEgg);
-    updateSelectedRecipes(eggBagel.id, true, eggBagel);
+        // Select the recipes
+        updateSelectedRecipes(softBoiledEgg.id, true, softBoiledEgg);
+        updateSelectedRecipes(eggBagel.id, true, eggBagel);
+
+        // Remove the listener after the selection is done
+        _recipes.removeListener(selectDefaultRecipesWhenAvailable);
+      }
+    });
   }
-
 }

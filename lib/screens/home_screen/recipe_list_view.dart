@@ -1,48 +1,54 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_recipes/models/recipe/recipe_model.dart';
+import 'package:flutter_recipes/models/recipe/recipe.dart';
+import 'package:flutter_recipes/screens/recipe_collection_screen.dart/recipe_collection_card/recipe_collection_card.dart';
 import 'package:flutter_recipes/shared/global_state.dart';
-import 'package:flutter_recipes/screens/home_screen/recipe_card.dart';
 import 'package:provider/provider.dart';
 
-class RecipeListView extends StatelessWidget {
-  const RecipeListView({Key? key}) : super(key: key);
-
-  void onChanged(
-      BuildContext context, String id, bool? value, RecipeModel recipe) {
-    Provider.of<GlobalState>(context, listen: false)
-        .updateSelectedRecipes(id, value ?? false, recipe);
-  }
+class RecipeCollectionListView extends StatelessWidget {
+  const RecipeCollectionListView({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return ValueListenableBuilder<List<RecipeModel>>(
-      valueListenable: Provider.of<GlobalState>(context).recipes,
-      builder: (context, recipes, child) {
-        String searchQuery = Provider.of<GlobalState>(context).searchQuery;
-        int minutesRequired = Provider.of<GlobalState>(context).minutesRequired;
+    return Consumer<GlobalState>(
+      builder: (context, globalState, child) {
+        return ValueListenableBuilder<List<Recipe>>(
+          valueListenable: globalState.recipes,
+          builder: (context, recipes, child) {
+            List<Recipe> filteredRecipes = globalState.filteredRecipes;
 
-        List<RecipeModel> filteredRecipes = recipes.where((recipe) {
-          bool matchesSearchQuery = searchQuery.isEmpty ||
-              recipe.data.title.contains(searchQuery) ||
-              recipe.data.ingredients.any((ingredient) =>
-                  ingredient.ingredientData.name.contains(searchQuery));
-
-          return matchesSearchQuery &&
-              recipe.data.cookTime + recipe.data.prepTime <= minutesRequired;
-        }).toList();
-
-        return ListView.builder(
-          itemCount: filteredRecipes.length,
-          itemBuilder: (context, index) {
-            RecipeModel recipe = filteredRecipes[index];
-            return RecipeCard(
-              recipe: recipe,
-              onChanged: (value) =>
-                  onChanged(context, recipe.id, value, recipe),
+            return ListView.builder(
+              itemCount: filteredRecipes.length,
+              itemBuilder: (context, index) {
+                Recipe recipe = filteredRecipes[index];
+                return RecipeCollectionCard(
+                  recipe: recipe,
+                  onChanged: (value) =>
+                      _onChanged(context, recipe.id, value, recipe),
+                );
+              },
             );
           },
         );
       },
     );
+  }
+
+  void _onChanged(BuildContext context, String id, bool? value, Recipe recipe) {
+    Provider.of<GlobalState>(context, listen: false)
+        .updateSelectedRecipes(id, value ?? false, recipe);
+  }
+}
+
+extension on GlobalState {
+  List<Recipe> get filteredRecipes {
+    return recipes.value.where((recipe) {
+      bool matchesSearchQuery = searchQuery.isEmpty ||
+          recipe.title.contains(searchQuery) ||
+          recipe.ingredients
+              .any((ingredient) => ingredient.name.contains(searchQuery));
+
+      return matchesSearchQuery &&
+          recipe.cookTime + recipe.prepTime <= minutesRequired;
+    }).toList();
   }
 }

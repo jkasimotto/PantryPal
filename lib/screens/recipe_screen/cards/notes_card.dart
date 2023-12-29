@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-class NotesInfoCard extends StatelessWidget {
-  const NotesInfoCard({
+class RecipeDocNotesCard extends StatelessWidget {
+  const RecipeDocNotesCard({
     super.key,
     required TextEditingController notesController,
   }) : _notesController = notesController;

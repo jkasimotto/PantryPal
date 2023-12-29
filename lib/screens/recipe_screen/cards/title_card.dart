@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 
-class TitleInfoCard extends StatelessWidget {
+class RecipeDocTitleCard extends StatelessWidget {
   final TextEditingController titleController;
 
-  const TitleInfoCard({Key? key, required this.titleController}) : super(key: key);
+  const RecipeDocTitleCard({Key? key, required this.titleController})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
