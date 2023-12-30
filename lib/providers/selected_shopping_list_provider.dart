@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_recipes/models/shopping_list/shopping_list.dart';
+import 'package:flutter_recipes/models/shopping_list/shopping_list_model.dart';
 
 class SelectedShoppingListProvider extends ChangeNotifier {
   final Map<String, ShoppingList> _selectedLists = {};

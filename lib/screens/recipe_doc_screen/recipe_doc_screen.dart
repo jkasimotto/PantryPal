@@ -1,12 +1,10 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_recipes/models/ingredient/ingredient.dart';
-import 'package:flutter_recipes/models/ingredient/nutritional_information.dart';
-import 'package:flutter_recipes/models/ingredient/quantity.dart';
 import 'package:flutter_recipes/models/method/recipe_method_step_model.dart';
-import 'package:flutter_recipes/models/recipe/recipe.dart';
+import 'package:flutter_recipes/models/recipe/recipe_model.dart';
 import 'package:flutter_recipes/screens/recipe_screen/app_bar.dart';
-import 'package:flutter_recipes/screens/recipe_screen/cards/ingredient_list_card.dart';
+import 'package:flutter_recipes/screens/recipe_doc_screen/recipe_doc_ingredient_view_card.dart';
 import 'package:flutter_recipes/screens/recipe_screen/cards/method_card.dart';
 import 'package:flutter_recipes/screens/recipe_screen/cards/notes_card.dart';
 import 'package:flutter_recipes/screens/recipe_screen/cards/servings_card.dart';
@@ -17,7 +15,7 @@ import 'package:flutter_recipes/screens/recipe_screen/recipe_controller.dart';
 import 'package:flutter_recipes/services/firestore_service.dart';
 
 class RecipeDocScreen extends StatefulWidget {
-  final Recipe recipe;
+  final RecipeModel recipe;
 
   const RecipeDocScreen({Key? key, required this.recipe}) : super(key: key);
 
@@ -29,14 +27,12 @@ class RecipeDocScreen extends StatefulWidget {
 class _RecipeDocScreenState extends State<RecipeDocScreen> {
   final _firestoreService = FirestoreService();
   late RecipeController _recipeController;
-  late List<IngredientWithQuantity> _ingredients;
   late List<RecipeMethodStepData> _methodSteps;
 
   @override
   void initState() {
     super.initState();
     _recipeController = RecipeController(widget.recipe);
-    _ingredients = widget.recipe.ingredients;
     _methodSteps = widget.recipe.method;
   }
 
@@ -48,114 +44,84 @@ class _RecipeDocScreenState extends State<RecipeDocScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: RecipeScreenAppBar(_saveRecipe),
-      body: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: ListView(
-          children: <Widget>[
-            buildRecipeDocTitleCard(),
-            buildRecipeDocTimerCard(),
-            buildRecipeDocCuisineCard(),
-            buildRecipeDocServingsCard(),
-            buildRecipeDocIngredientListCard(),
-            buildRecipeDocMethodListCard(),
-            buildRecipeDocNotesCard(),
-          ],
-        ),
-      ),
-    );
+    return StreamBuilder(
+        stream: _firestoreService.listenToRecipe(widget.recipe.id),
+        builder: (BuildContext context, AsyncSnapshot<RecipeModel> snapshot) {
+          if (snapshot.hasError) {
+            return const Text('Something went wrong');
+          }
+
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const CircularProgressIndicator();
+          }
+
+          RecipeModel updatedRecipe = snapshot.data!;
+
+          return Scaffold(
+            appBar: RecipeScreenAppBar(_saveRecipe),
+            body: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: ListView(
+                children: <Widget>[
+                  buildRecipeDocTitleCard(updatedRecipe),
+                  buildRecipeDocTimerCard(updatedRecipe),
+                  buildRecipeDocCuisineCard(updatedRecipe),
+                  buildRecipeDocServingsCard(updatedRecipe),
+                  buildRecipeDocIngredientListCard(updatedRecipe),
+                  buildRecipeDocMethodListCard(updatedRecipe),
+                  buildRecipeDocNotesCard(updatedRecipe),
+                ],
+              ),
+            ),
+          );
+        });
   }
 
-  Widget buildRecipeDocTitleCard() {
+  Widget buildRecipeDocTitleCard(RecipeModel updatedRecipe) {
     return RecipeDocTitleCard(
       titleController: _recipeController.titleController,
     );
   }
 
-  Widget buildRecipeDocTimerCard() {
+  Widget buildRecipeDocTimerCard(RecipeModel updatedRecipe) {
     return RecipeDocTimerCard(
       prepTimeController: _recipeController.prepTimeController,
       cookTimeController: _recipeController.cookTimeController,
     );
   }
 
-  Widget buildRecipeDocCuisineCard() {
+  Widget buildRecipeDocCuisineCard(RecipeModel updatedRecipe) {
     return RecipeDocCuisineCard(
       cuisineController: _recipeController.cuisineController,
       courseController: _recipeController.courseController,
     );
   }
 
-  Widget buildRecipeDocServingsCard() {
+  Widget buildRecipeDocServingsCard(RecipeModel updatedRecipe) {
     return RecipeDocServingsCard(
       servingsController: _recipeController.servingsController,
     );
   }
 
-  Widget buildRecipeDocIngredientListCard() {
-    return RecipeDocIngredientListCard(
-      ingredients: _ingredients,
+  Widget buildRecipeDocIngredientListCard(RecipeModel updatedRecipe) {
+    return RecipeDocIngredientViewCard(
+      recipe: updatedRecipe,
       recipeController: _recipeController,
-      onIngredientSave: _onIngredientSave,
       saveRecipe: _saveRecipe,
     );
   }
 
-  Widget buildRecipeDocMethodListCard() {
+  Widget buildRecipeDocMethodListCard(RecipeModel updatedRecipe) {
     return RecipeDocMethodListCard(
       methodSteps: _methodSteps,
       methodControllers: _recipeController.methodControllers,
     );
   }
 
-  Widget buildRecipeDocNotesCard() {
+  Widget buildRecipeDocNotesCard(RecipeModel updatedRecipe) {
     return RecipeDocNotesCard(
       notesController: _recipeController.notesController,
     );
-  }
-
-  void _onIngredientSave(int index) {
-    setState(() {
-      updateExistingIngredient(index);
-      addNewIngredient(index);
-    });
-
-    saveRecipeAndCloseDialog();
-  }
-
-  void updateExistingIngredient(int index) {
-    if (index < _ingredients.length) {
-      _ingredients[index] = _ingredients[index].copyWith(
-        name: _recipeController.ingredientNameControllers[index].text,
-        quantity: Quantity(
-          amount: double.tryParse(_recipeController
-                  .ingredientQuantityControllers[index].text) ??
-              0,
-          units: _recipeController.ingredientUnitControllers[index].text,
-        ),
-      );
-    }
-  }
-
-  void addNewIngredient(int index) {
-    if (index == _recipeController.ingredientNameControllers.length - 1) {
-      _ingredients.add(IngredientWithQuantity(
-        name: _recipeController.ingredientNameControllers[index].text,
-        meta: IngredientMeta(),
-        quantity: Quantity(
-          amount: double.tryParse(_recipeController
-                  .ingredientQuantityControllers[index].text) ??
-              0,
-          units: _recipeController.ingredientUnitControllers[index].text,
-        ),
-      ));
-
-      _recipeController.ingredientNameControllers.add(TextEditingController());
-      _recipeController.ingredientQuantityControllers
-          .add(TextEditingController());
-      _recipeController.ingredientUnitControllers.add(TextEditingController());
-    }
   }
 
   void saveRecipeAndCloseDialog() {
@@ -164,7 +130,7 @@ class _RecipeDocScreenState extends State<RecipeDocScreen> {
   }
 
   void _saveRecipe({bool shouldShowDialog = true}) {
-    Recipe updatedRecipe = updateRecipe();
+    RecipeModel updatedRecipe = updateRecipe();
 
     _firestoreService.updateDocument(updatedRecipe, 'recipes').then((_) {
       if (kDebugMode) {
@@ -178,11 +144,9 @@ class _RecipeDocScreenState extends State<RecipeDocScreen> {
     });
   }
 
-  Recipe updateRecipe() {
+  RecipeModel updateRecipe() {
     return widget.recipe.copyWith(
       title: _recipeController.titleController.text,
-      ingredients: _ingredients,
-      method: _methodSteps,
       cuisine: _recipeController.cuisineController.text,
       course: _recipeController.courseController.text,
       servings: int.parse(_recipeController.servingsController.text),

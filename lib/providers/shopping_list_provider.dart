@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_recipes/models/shopping_list/shopping_list.dart';
+import 'package:flutter_recipes/models/shopping_list/shopping_list_model.dart';
 import 'package:flutter_recipes/providers/selected_recipes_provider.dart';
 import 'package:flutter_recipes/providers/user_provider.dart';
 import 'package:flutter_recipes/services/ad_service.dart';

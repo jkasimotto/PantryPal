@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_recipes/controllers/recipe_logic_controller.dart';
 import 'package:flutter_recipes/models/user/user_model.dart';
+import 'package:flutter_recipes/providers/recipe_provider.dart';
 import 'package:flutter_recipes/providers/user_provider.dart';
 import 'package:flutter_recipes/screens/home_screen/dialogs/cookbook_input_dialog.dart';
+import 'package:flutter_recipes/services/ad_service.dart';
+import 'package:flutter_recipes/services/firestore_service.dart';
+import 'package:flutter_recipes/services/recipe_service.dart';
 import 'package:flutter_recipes/services/user_input_service.dart';
 import 'package:flutter_recipes/shared/global_state.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -12,7 +15,6 @@ import 'package:provider/provider.dart';
 class BottomSheetCardList extends StatelessWidget {
   final UserProvider userProvider;
   final UserInputService userInputService;
-  final RecipeLogicController recipeController;
   final ScrollController _scrollController =
       ScrollController(initialScrollOffset: 20.0); // Add this line
 
@@ -20,12 +22,16 @@ class BottomSheetCardList extends StatelessWidget {
     super.key,
     required this.userProvider,
     required this.userInputService,
-    required this.recipeController,
   });
 
   @override
   Widget build(BuildContext context) {
     UserModel? user = userProvider.user;
+    final RecipeService recipeService = RecipeService(
+        firestoreService: FirestoreService(),
+        userProvider: userProvider,
+        adService: Provider.of<AdService>(context),
+        recipeProvider: Provider.of<RecipeProvider>(context));
 
     if (user == null) {
       throw Exception('User is null');
@@ -64,7 +70,7 @@ class BottomSheetCardList extends StatelessWidget {
                     context, user.metadata.hasCompletedTextAction);
                 if (recipeText != null) {
                   if (context.mounted) {
-                    recipeController.extractRecipeFromText(recipeText);
+                    recipeService.extractRecipeFromText(recipeText);
                   }
                 }
               },
@@ -78,7 +84,7 @@ class BottomSheetCardList extends StatelessWidget {
                     context, user.metadata.hasCompletedTextAction);
                 if (recipeText != null) {
                   if (context.mounted) {
-                    recipeController.extractRecipeFromText(recipeText);
+                    recipeService.extractRecipeFromText(recipeText);
                   }
                 }
               },
@@ -91,7 +97,7 @@ class BottomSheetCardList extends StatelessWidget {
                 final url = await userInputService.selectUrl(
                     context, user.metadata.hasCompletedWebAction);
                 if (url != null) {
-                  recipeController.extractRecipeFromWebUrl(url);
+                  recipeService.extractRecipeFromWebUrl(url);
                 }
               },
             ),
@@ -108,7 +114,7 @@ class BottomSheetCardList extends StatelessWidget {
                 // final mediaList =
                 //     await userInputService.showImageSourceSelection(context);
                 if (mediaList != null) {
-                  recipeController.extractRecipeFromImages(
+                  recipeService.extractRecipeFromImages(
                     mediaList.values
                         .expand((element) => element)
                         .where((element) => element != null)
@@ -126,7 +132,7 @@ class BottomSheetCardList extends StatelessWidget {
                 final mediaList =
                     await userInputService.showImageSourceSelection(context);
                 if (mediaList != null) {
-                  recipeController.extractRecipeFromImages(mediaList);
+                  recipeService.extractRecipeFromImages(mediaList);
                 }
               },
             ),

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_recipes/models/ingredient/ingredient.dart';
-import 'package:flutter_recipes/models/shopping_list/shopping_list.dart';
+import 'package:flutter_recipes/models/ingredient/ingredient_model.dart';
+import 'package:flutter_recipes/models/shopping_list/shopping_list_model.dart';
 import 'package:flutter_recipes/shared/compact_ingredient_card.dart';
 import 'package:flutter_recipes/shared/grid_ingredient_card.dart';
 import 'package:flutter_recipes/shared/ingredient_icon.dart';

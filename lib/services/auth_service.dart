@@ -1,10 +1,13 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_recipes/models/user/user_model.dart' as models;
 import 'package:flutter_recipes/models/user/user_model.dart';
+import 'package:flutter_recipes/providers/ad_provider.dart';
 import 'package:flutter_recipes/providers/recipe_provider.dart';
+import 'package:flutter_recipes/providers/selected_recipes_provider.dart';
 import 'package:flutter_recipes/providers/user_provider.dart';
 import 'package:flutter_recipes/services/firestore_service.dart';
 import 'package:flutter_recipes/services/logger.dart';
+import 'package:flutter_recipes/services/recipe_service.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
@@ -36,9 +39,6 @@ class AuthenticationService {
       User? user = _firebaseAuth.currentUser;
       models.UserModel? userModel = await _updateOrCreateUser(user, context);
       _setFirebaseUserInProvider(userModel, context);
-      if (userModel != null && userModel.metadata.signInCount == 0) {
-        await handleFirstTimeSignIn(context, userModel);
-      }
       return "Signed in";
     } on FirebaseAuthException catch (e) {
       return e.message ?? 'An unknown error occurred';
@@ -80,9 +80,6 @@ class AuthenticationService {
       if (context.mounted) {
         models.UserModel? userModel = await _updateOrCreateUser(user, context);
         _setFirebaseUserInProvider(userModel, context);
-        if (userModel != null && userModel.metadata.signInCount == 0) {
-          await handleFirstTimeSignIn(context, userModel);
-        }
       }
       return "Signed in with Google";
     } catch (e) {
@@ -162,24 +159,6 @@ class AuthenticationService {
       await user.delete();
       // Sign out the user
       await signOut(context);
-    }
-  }
-
-  // TODO: FINISH THIS AND CHANGRE FROM GLOBAL STATE
-  // TODO: FIGURE OUT WHERE TO PUT CREATE INITAL RECIPES AND EXTRACTION EITHER IN
-  Future<void> handleFirstTimeSignIn(
-      BuildContext context, UserModel userModel) async {
-    // If it's the user's first time signing in, alter the GlobalState
-    final globalState = Provider.of<GlobalState>(context, listen: false);
-    final RecipeProvider recipeProvider =
-        Provider.of<RecipeProvider>(context, listen: false);
-    // Perform your operations on globalState here...
-
-    // Avoid circular rebuild
-    if (globalState.recipes.value.isEmpty) {
-      await recipeProvider.createInitialRecipes(
-          userModel.id, FirestoreService());
-      globalState.selectDefaultRecipesWhenAvailable();
     }
   }
 }

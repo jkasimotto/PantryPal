@@ -1,11 +1,11 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:flutter_recipes/models/recipe/recipe.dart';
+import 'package:flutter_recipes/models/recipe/recipe_model.dart';
 import 'package:flutter_recipes/shared/linear_progress_with_widget.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 class LoadingRecipeCard extends StatefulWidget {
-  final Recipe recipe;
+  final RecipeModel recipe;
 
   const LoadingRecipeCard({Key? key, required this.recipe}) : super(key: key);
 

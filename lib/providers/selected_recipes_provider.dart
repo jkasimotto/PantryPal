@@ -2,32 +2,32 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_recipes/models/recipe/recipe.dart';
+import 'package:flutter_recipes/models/recipe/recipe_model.dart';
 import 'package:flutter_recipes/providers/recipe_provider.dart';
 import 'package:flutter_recipes/services/firestore_service.dart';
+import 'package:flutter_recipes/services/recipe_service.dart';
 import 'package:share/share.dart';
 
 class SelectedRecipeProvider extends ChangeNotifier {
-  final Map<String, Recipe> _selectedRecipes = {};
+  final Map<String, RecipeModel> _selectedRecipes = {};
   final Map<String, int> _selectedRecipesServings = {};
   final RecipeProvider recipeProvider; // Added this line
+  final RecipeService recipeService;
 
-  SelectedRecipeProvider({required this.recipeProvider}) {
-    // Added this line
-    selectDefaultRecipesWhenAvailable();
-  }
+  SelectedRecipeProvider(
+      {required this.recipeProvider, required this.recipeService}) {}
 
-  Map<String, Recipe> get selectedRecipes => _selectedRecipes;
+  Map<String, RecipeModel> get selectedRecipes => _selectedRecipes;
   Map<String, int> get selectedRecipesServings => _selectedRecipesServings;
 
   Future<void> deleteSelectedRecipes() async {
     List<String> recipeIds =
         _selectedRecipes.values.map((recipe) => recipe.id).toList();
-    await FirestoreService().deleteDocuments(recipeIds, 'recipes');
+    recipeService.deleteRecipes(recipeIds);
     clearSelectedRecipes();
   }
 
-  void updateSelectedRecipes(String id, bool value, Recipe recipe) {
+  void updateSelectedRecipes(String id, bool value, RecipeModel recipe) {
     if (value == true) {
       _selectedRecipes[id] = recipe;
     } else {
@@ -63,11 +63,11 @@ class SelectedRecipeProvider extends ChangeNotifier {
     // Moved this method here
     // Listen to the recipes ValueNotifier
     recipeProvider.recipes.addListener(() {
-      // Check if there are at least two recipes
-      if (recipeProvider.recipes.value.length >= 2) {
+      // Check if there are two recipes
+      if (recipeProvider.recipes.value.length == 2) {
         // Get the two default recipes
-        Recipe softBoiledEgg = recipeProvider.recipes.value[0];
-        Recipe eggBagel = recipeProvider.recipes.value[1];
+        RecipeModel softBoiledEgg = recipeProvider.recipes.value[0];
+        RecipeModel eggBagel = recipeProvider.recipes.value[1];
 
         // Select the recipes
         updateSelectedRecipes(softBoiledEgg.id, true, softBoiledEgg);

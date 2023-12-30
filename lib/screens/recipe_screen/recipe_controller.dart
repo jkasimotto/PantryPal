@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_recipes/models/recipe/recipe.dart';
+import 'package:flutter_recipes/models/recipe/recipe_model.dart';
 
 class RecipeController {
   late TextEditingController titleController;
@@ -19,7 +19,7 @@ class RecipeController {
 
   List<List<TextEditingController>> methodControllers = [];
 
-  RecipeController(Recipe recipe) {
+  RecipeController(RecipeModel recipe) {
     titleController = TextEditingController(text: recipe.title);
     ingredientsController =
         TextEditingController(text: recipe.ingredients.join('\n'));
@@ -64,6 +64,55 @@ class RecipeController {
     ingredientNameControllers.add(TextEditingController());
     ingredientQuantityControllers.add(TextEditingController());
     ingredientUnitControllers.add(TextEditingController());
+  }
+
+  // Method to add a new ingredient
+  void addIngredient() {
+    ingredientNameControllers.add(TextEditingController());
+    ingredientQuantityControllers.add(TextEditingController());
+    ingredientUnitControllers.add(TextEditingController());
+  }
+
+  // Method to remove an ingredient at a specific index
+  void removeIngredient(int index) {
+    ingredientNameControllers[index].dispose();
+    ingredientQuantityControllers[index].dispose();
+    ingredientUnitControllers[index].dispose();
+
+    ingredientNameControllers.removeAt(index);
+    ingredientQuantityControllers.removeAt(index);
+    ingredientUnitControllers.removeAt(index);
+  }
+
+  // Method to update an ingredient at a specific index
+  void updateIngredient(int index, String name, String quantity, String unit) {
+    ingredientNameControllers[index].text = name;
+    ingredientQuantityControllers[index].text = quantity;
+    ingredientUnitControllers[index].text = unit;
+  }
+
+  // Method to add a new method step
+  void addMethodStep() {
+    methodControllers.add([
+      TextEditingController(),
+      TextEditingController(),
+      // Add more controllers for each field in RecipeMethodStepData
+    ]);
+  }
+
+  // Method to remove a method step at a specific index
+  void removeMethodStep(int index) {
+    for (var controller in methodControllers[index]) {
+      controller.dispose();
+    }
+    methodControllers.removeAt(index);
+  }
+
+  // Method to update a method step at a specific index
+  void updateMethodStep(int index, String stepNumber, String description) {
+    methodControllers[index][0].text = stepNumber;
+    methodControllers[index][1].text = description;
+    // Update more controllers for each field in RecipeMethodStepData
   }
 
   void dispose() {

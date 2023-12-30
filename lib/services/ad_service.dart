@@ -1,13 +1,14 @@
 // lib/providers/ad_provider.dart
 import 'dart:ui';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter_recipes/shared/ad_helper.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'dart:developer' as developer;
 
 // Import the developer package
 
-class AdService {
+class AdService with ChangeNotifier {
   late InterstitialAd _interstitialAd;
   bool _isInterstitialAdReady = false;
 

@@ -2,7 +2,6 @@
 // ignore_for_file: unused_import
 
 import 'package:flutter/material.dart';
-import 'package:flutter_recipes/controllers/recipe_logic_controller.dart';
 import 'package:flutter_recipes/models/user/user_model.dart';
 import 'package:flutter_recipes/providers/ad_provider.dart';
 import 'package:flutter_recipes/providers/user_provider.dart';

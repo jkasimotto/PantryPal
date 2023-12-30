@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_recipes/models/recipe/recipe.dart';
+import 'package:flutter_recipes/models/recipe/recipe_model.dart';
 import 'package:flutter_recipes/services/firestore_service.dart';
 
 class RecipeCollectionErrorCard extends StatelessWidget {
-  final Recipe recipe;
+  final RecipeModel recipe;
 
   const RecipeCollectionErrorCard({super.key, required this.recipe});
 

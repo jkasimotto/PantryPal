@@ -1,14 +1,15 @@
+import 'package:flutter_recipes/models/base_model.dart';
 import 'package:flutter_recipes/models/ingredient/nutritional_information.dart';
 import 'package:flutter_recipes/models/ingredient/quantity.dart';
 import 'package:flutter_recipes/models/shopping_list/location_data.dart';
 import 'package:json_annotation/json_annotation.dart';
 
-part 'ingredient.g.dart';
+part 'ingredient_model.g.dart';
 
 // ==================================================================
 
 @JsonSerializable(explicitToJson: true)
-class Ingredient {
+class Ingredient extends BaseModel {
   final String name;
   final String? form;
   final String? category;
@@ -29,6 +30,9 @@ class Ingredient {
       this.seasonality,
       this.allergens,
       this.substitutions});
+
+  @override
+  String get id => meta.ingredientId ?? '';
 
   factory Ingredient.fromJson(Map<String, dynamic> json) =>
       _$IngredientFromJson(json);
@@ -95,6 +99,7 @@ class IngredientWithQuantity extends Ingredient {
 
   factory IngredientWithQuantity.fromJson(Map<String, dynamic> json) =>
       _$IngredientWithQuantityFromJson(json);
+  @override
   Map<String, dynamic> toJson() => _$IngredientWithQuantityToJson(this);
 }
 
@@ -155,5 +160,6 @@ class ShoppingListIngredient extends IngredientWithQuantity {
 
   factory ShoppingListIngredient.fromJson(Map<String, dynamic> json) =>
       _$ShoppingListIngredientFromJson(json);
+  @override
   Map<String, dynamic> toJson() => _$ShoppingListIngredientToJson(this);
 }

@@ -1,7 +1,7 @@
 // lib/screens/list_screen/list_list_view.dart
 
 import 'package:flutter/material.dart';
-import 'package:flutter_recipes/models/shopping_list/shopping_list.dart';
+import 'package:flutter_recipes/models/shopping_list/shopping_list_model.dart';
 import 'package:flutter_recipes/models/status.dart';
 import 'package:flutter_recipes/shared/global_state.dart';
 import 'package:flutter_recipes/screens/list_collection_screen/list_card.dart';

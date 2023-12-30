@@ -1,15 +1,15 @@
 import 'package:flutter_recipes/models/base_model.dart';
-import 'package:flutter_recipes/models/ingredient/ingredient.dart';
+import 'package:flutter_recipes/models/ingredient/ingredient_model.dart';
 import 'package:flutter_recipes/models/ingredient/nutritional_information.dart';
 import 'package:flutter_recipes/models/ingredient/quantity.dart';
 import 'package:flutter_recipes/models/method/recipe_method_step_model.dart';
 import 'package:flutter_recipes/models/status.dart';
 import 'package:json_annotation/json_annotation.dart';
 
-part 'recipe.g.dart';
+part 'recipe_model.g.dart';
 
 @JsonSerializable(explicitToJson: true)
-class Recipe extends BaseModel {
+class RecipeModel extends BaseModel {
   final String title;
   final List<IngredientWithQuantity> ingredients;
   final List<RecipeMethodStepData> method;
@@ -21,7 +21,7 @@ class Recipe extends BaseModel {
   final String? notes;
   final RecipeMetadata meta;
 
-  Recipe(
+  RecipeModel(
       {required this.title,
       required this.ingredients,
       required this.method,
@@ -38,7 +38,7 @@ class Recipe extends BaseModel {
 
   int get totalTime => prepTime + cookTime;
 
-  Recipe copyWith({
+  RecipeModel copyWith({
     String? title,
     List<IngredientWithQuantity>? ingredients,
     List<RecipeMethodStepData>? method,
@@ -50,7 +50,7 @@ class Recipe extends BaseModel {
     String? notes,
     RecipeMetadata? meta,
   }) {
-    return Recipe(
+    return RecipeModel(
       title: title ?? this.title,
       ingredients: ingredients ?? this.ingredients,
       method: method ?? this.method,
@@ -62,6 +62,35 @@ class Recipe extends BaseModel {
       notes: notes ?? this.notes,
       meta: meta ?? this.meta,
     );
+  }
+
+  // Method to add a new ingredient
+  RecipeModel addIngredient(IngredientWithQuantity newIngredient) {
+    List<IngredientWithQuantity> updatedIngredients = List.from(ingredients);
+    updatedIngredients.add(newIngredient);
+    return copyWith(ingredients: updatedIngredients);
+  }
+
+  // Method to remove an ingredient
+  RecipeModel removeIngredient(String ingredientIdToRemove) {
+    List<IngredientWithQuantity> updatedIngredients =
+        ingredients.where((ingredient) {
+      return ingredient.meta.ingredientId != ingredientIdToRemove;
+    }).toList();
+    return copyWith(ingredients: updatedIngredients);
+  }
+
+  // Method to edit an existing ingredient
+  RecipeModel editIngredient(IngredientWithQuantity editedIngredient) {
+    List<IngredientWithQuantity> updatedIngredients =
+        ingredients.map((ingredient) {
+      if (ingredient.meta.ingredientId == editedIngredient.meta.ingredientId) {
+        return editedIngredient;
+      } else {
+        return ingredient;
+      }
+    }).toList();
+    return copyWith(ingredients: updatedIngredients);
   }
 
   // Getter for adjusted ingredients
@@ -100,8 +129,8 @@ class Recipe extends BaseModel {
     }).toList();
   }
 
-  Recipe generateNewRecipeFromMeta(RecipeMetadata newMeta) {
-    return Recipe(
+  RecipeModel generateNewRecipeFromMeta(RecipeMetadata newMeta) {
+    return RecipeModel(
         title: title,
         ingredients: ingredients,
         method: method,
@@ -114,8 +143,9 @@ class Recipe extends BaseModel {
         meta: newMeta);
   }
 
-  factory Recipe.fromJson(Map<String, dynamic> json) => _$RecipeFromJson(json);
-  Map<String, dynamic> toJson() => _$RecipeToJson(this);
+  factory RecipeModel.fromJson(Map<String, dynamic> json) =>
+      _$RecipeModelFromJson(json);
+  Map<String, dynamic> toJson() => _$RecipeModelToJson(this);
 }
 
 @JsonSerializable(explicitToJson: true)

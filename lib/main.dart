@@ -13,7 +13,9 @@ import 'package:flutter_recipes/providers/selected_recipes_provider.dart';
 import 'package:flutter_recipes/providers/selected_shopping_list_provider.dart';
 import 'package:flutter_recipes/providers/shopping_list_provider.dart';
 import 'package:flutter_recipes/providers/ui_provider.dart';
+import 'package:flutter_recipes/services/ad_service.dart';
 import 'package:flutter_recipes/services/firestore_service.dart';
+import 'package:flutter_recipes/services/recipe_service.dart';
 import 'package:flutter_recipes/shared/global_state.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart'; // Added this line
 import 'package:provider/provider.dart';
@@ -70,10 +72,21 @@ void main() async {
   // User Provider
   UserProvider userProvider = UserProvider(); // Added this line
 
+  // Firestore Service
+  FirestoreService firestoreService = FirestoreService();
+
+  // Ad Service
+  AdService adService = AdService();
+
   // Recipe Providers
   RecipeProvider recipeProvider = RecipeProvider(userProvider: userProvider);
-  SelectedRecipeProvider selectedRecipeProvider =
-      SelectedRecipeProvider(recipeProvider: recipeProvider);
+  RecipeService recipeService = RecipeService(
+      firestoreService: firestoreService,
+      userProvider: userProvider,
+      adService: adService,
+      recipeProvider: recipeProvider);
+  SelectedRecipeProvider selectedRecipeProvider = SelectedRecipeProvider(
+      recipeProvider: recipeProvider, recipeService: recipeService);
   RecipeFilterProvider recipeFilterProvider = RecipeFilterProvider();
 
   // Shopping List Providers
@@ -102,7 +115,7 @@ void main() async {
             ),
             ChangeNotifierProvider(
                 create: (context) => GlobalState(userProvider)),
-            ChangeNotifierProvider(create: (context) => AdProvider()),
+            ChangeNotifierProvider(create: (context) => adService),
             ChangeNotifierProvider(
               create: (context) => recipeProvider,
             ),

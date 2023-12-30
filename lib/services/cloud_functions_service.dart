@@ -1,8 +1,8 @@
 import 'dart:developer' as developer;
 import 'dart:convert';
 import 'package:cloud_functions/cloud_functions.dart';
-import 'package:flutter_recipes/models/ingredient/ingredient.dart';
-import 'package:flutter_recipes/models/recipe/recipe.dart';
+import 'package:flutter_recipes/models/ingredient/ingredient_model.dart';
+import 'package:flutter_recipes/models/recipe/recipe_model.dart';
 import 'package:flutter_recipes/models/status.dart';
 
 Future<String> transcribeAudio(String audioBase64) async {
@@ -46,7 +46,7 @@ Future<String> transcribeYoutubeVideo(String videoUrl) async {
 }
 
 Future<List<ShoppingListIngredient>> combineIngredients(
-    List<Recipe> recipes) async {
+    List<RecipeModel> recipes) async {
   try {
     var recipesJson =
         jsonEncode(recipes.map((recipe) => recipe.toJson()).toList());
@@ -79,7 +79,7 @@ Future<List<ShoppingListIngredient>> combineIngredients(
   }
 }
 
-Future<Recipe> extractRecipeFromText(String text) async {
+Future<RecipeModel> extractRecipeFromText(String text) async {
   try {
     // Call the function
     final result = await FirebaseFunctions.instance
@@ -91,7 +91,7 @@ Future<Recipe> extractRecipeFromText(String text) async {
     if (result.data['status'] == 'success') {
       // Bit of a hack that works.
       var recipe = jsonDecode(jsonEncode(result.data))['recipe'];
-      return Recipe.fromJson(recipe.cast<String, dynamic>());
+      return RecipeModel.fromJson(recipe.cast<String, dynamic>());
     } else {
       print('Error: ${result.data['error']}');
       return Future.error(result.data['error']);
@@ -104,7 +104,7 @@ Future<Recipe> extractRecipeFromText(String text) async {
   }
 }
 
-Future<Recipe> extractRecipeFromImages(List<String> base64Images) async {
+Future<RecipeModel> extractRecipeFromImages(List<String> base64Images) async {
   try {
     // Call the function
     final result = await FirebaseFunctions.instance
@@ -113,7 +113,7 @@ Future<Recipe> extractRecipeFromImages(List<String> base64Images) async {
                 HttpsCallableOptions(timeout: const Duration(seconds: 540)))
         .call({'images': base64Images});
 
-    Recipe recipe = await extractRecipeFromText(result.data['text']);
+    RecipeModel recipe = await extractRecipeFromText(result.data['text']);
 
     // Return the recipe
     return recipe;
@@ -125,7 +125,7 @@ Future<Recipe> extractRecipeFromImages(List<String> base64Images) async {
   }
 }
 
-Future<Recipe> extractRecipeFromWebpage(String url) async {
+Future<RecipeModel> extractRecipeFromWebpage(String url) async {
   try {
     // Call the function
     final result = await FirebaseFunctions.instance
@@ -140,7 +140,7 @@ Future<Recipe> extractRecipeFromWebpage(String url) async {
     if (result.data['status'] == 'success') {
       var recipe = result.data['recipe'] as Map;
       // Convert the result data to a Recipe
-      return Recipe.fromJson(Map<String, dynamic>.from(recipe));
+      return RecipeModel.fromJson(Map<String, dynamic>.from(recipe));
     } else {
       print('Error: ${result.data['error']}');
       return Future.error(result.data['error']);
@@ -192,6 +192,25 @@ Future<Map<String, dynamic>> addIngredientIconPathToList(String listId) async {
 
     // Return the result
     return result.data as Map<String, dynamic>;
+  } on FirebaseFunctionsException catch (error) {
+    print('Error code: ${error.code}');
+    print('Error message: ${error.message}');
+    print('Error details: ${error.details}');
+    return Future.error(error);
+  }
+}
+
+Future<IngredientMeta> getIngredientMetadata(String ingredientName) async {
+  try {
+    // Call the function
+    final result = await FirebaseFunctions.instance
+        .httpsCallable('get_ingredient_metadata')
+        .call({'ingredient_name': ingredientName});
+
+    // Return the ingredient metadata
+    return IngredientMeta.fromJson(
+        jsonDecode(jsonEncode(result.data['ingredientMeta']))
+            as Map<String, dynamic>);
   } on FirebaseFunctionsException catch (error) {
     print('Error code: ${error.code}');
     print('Error message: ${error.message}');

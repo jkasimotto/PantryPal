@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_recipes/screens/add_recipe_screen/add_recipe_screen.dart';
 import 'package:flutter_recipes/screens/home_screen/home_screen.dart';
 import 'package:flutter_recipes/screens/list_collection_screen/list_collection_screen.dart';
 import 'package:flutter_recipes/screens/profile_screen.dart'; // Import the ProfileScreen
@@ -9,8 +8,6 @@ class Routes {
     switch (settings.name) {
       case '/':
         return MaterialPageRoute(builder: (_) => const HomeScreen());
-      case '/add':
-        return MaterialPageRoute(builder: (_) => const AddRecipeScreen());
       case '/search':
         return MaterialPageRoute(builder: (_) => const HomeScreen());
       case '/list':

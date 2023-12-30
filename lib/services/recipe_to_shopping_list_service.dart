@@ -1,8 +1,8 @@
 import 'dart:developer' as developer;
 import 'package:flutter/material.dart';
-import 'package:flutter_recipes/models/ingredient/ingredient.dart';
-import 'package:flutter_recipes/models/recipe/recipe.dart';
-import 'package:flutter_recipes/models/shopping_list/shopping_list.dart';
+import 'package:flutter_recipes/models/ingredient/ingredient_model.dart';
+import 'package:flutter_recipes/models/recipe/recipe_model.dart';
+import 'package:flutter_recipes/models/shopping_list/shopping_list_model.dart';
 import 'package:flutter_recipes/models/status.dart';
 import 'package:flutter_recipes/models/user/user_model.dart';
 import 'package:flutter_recipes/providers/selected_recipes_provider.dart';
@@ -28,14 +28,14 @@ class RecipeToListConverter {
     required this.uuid,
   });
 
-  Future<void> generateShoppingList(BuildContext context) async {
+  Future<void> generateShoppingList() async {
     UserModel? user = userProvider.user;
     String listId = uuid.v4();
     String userId = user?.metadata.id ?? '';
 
     ShoppingList loadingList = await createLoadingList(listId, userId);
     await showAdIfUserIsFree(user);
-    List<Recipe> adjustedRecipes = await adjustSelectedRecipes();
+    List<RecipeModel> adjustedRecipes = await adjustSelectedRecipes();
     await updateListWithActualDetails(loadingList, adjustedRecipes);
   }
 
@@ -56,16 +56,16 @@ class RecipeToListConverter {
     }
   }
 
-  Future<List<Recipe>> adjustSelectedRecipes() async {
+  Future<List<RecipeModel>> adjustSelectedRecipes() async {
     Map<String, int> selectedRecipesServings =
         selectedRecipeProvider.selectedRecipesServings;
 
-    List<Recipe> adjustedRecipes =
+    List<RecipeModel> adjustedRecipes =
         selectedRecipeProvider.selectedRecipes.values.map((recipe) {
       int newServings = selectedRecipesServings[recipe.id] ?? recipe.servings;
       List<IngredientWithQuantity> adjustedIngredients =
           recipe.adjustedIngredients(newServings);
-      return Recipe(
+      return RecipeModel(
           title: recipe.title,
           ingredients: adjustedIngredients,
           method: recipe.method,
@@ -82,7 +82,7 @@ class RecipeToListConverter {
   }
 
   Future<void> updateListWithActualDetails(
-      ShoppingList loadingList, List<Recipe> adjustedRecipes) async {
+      ShoppingList loadingList, List<RecipeModel> adjustedRecipes) async {
     try {
       List<ShoppingListIngredient> combinedIngredients =
           await cloud_functions.combineIngredients(adjustedRecipes);

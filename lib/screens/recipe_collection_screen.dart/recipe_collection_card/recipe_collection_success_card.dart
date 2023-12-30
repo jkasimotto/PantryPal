@@ -1,35 +1,33 @@
 // recipe_checkbox.dart
 import 'package:flutter/material.dart';
-import 'package:flutter_recipes/models/recipe/recipe.dart';
+import 'package:flutter_recipes/models/recipe/recipe_model.dart';
+import 'package:flutter_recipes/providers/selected_recipes_provider.dart';
 import 'package:flutter_recipes/screens/recipe_doc_screen/recipe_doc_screen.dart';
-import 'package:flutter_recipes/shared/global_state.dart';
 import 'package:provider/provider.dart';
 
 class RecipeCollectionCheckbox extends StatelessWidget {
-  final String recipeId;
-  final Function(bool?) onChanged;
+  final RecipeModel recipe;
 
   const RecipeCollectionCheckbox({
     Key? key,
-    required this.recipeId,
-    required this.onChanged,
+    required this.recipe,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
+    SelectedRecipeProvider selectedRecipeProvider =
+        Provider.of<SelectedRecipeProvider>(context);
     return Checkbox(
-      value: Provider.of<GlobalState>(context)
-          .selectedRecipes
-          .containsKey(recipeId),
-      onChanged: onChanged,
-    );
+        value: selectedRecipeProvider.selectedRecipes.containsKey(recipe.id),
+        onChanged: (value) => selectedRecipeProvider.updateSelectedRecipes(
+            recipe.id, value ?? false, recipe));
   }
 }
 
 class RecipeCollectionListTile extends StatelessWidget {
-  final Recipe recipe;
+  final RecipeModel recipe;
   final Widget leading;
-  final Function(BuildContext, Recipe) onTap;
+  final Function(BuildContext, RecipeModel) onTap;
 
   const RecipeCollectionListTile({
     Key? key,
@@ -51,7 +49,7 @@ class RecipeCollectionListTile extends StatelessWidget {
 }
 
 class NavigationService {
-  void navigateToRecipeScreen(BuildContext context, Recipe recipe) {
+  void navigateToRecipeScreen(BuildContext context, RecipeModel recipe) {
     Navigator.push(
       context,
       MaterialPageRoute(
@@ -62,13 +60,11 @@ class NavigationService {
 }
 
 class RecipeCollectionSuccessCard extends StatelessWidget {
-  final Recipe recipe;
-  final Function(bool?) onChanged;
+  final RecipeModel recipe;
 
   const RecipeCollectionSuccessCard({
     Key? key,
     required this.recipe,
-    required this.onChanged,
   }) : super(key: key);
 
   @override
@@ -78,8 +74,7 @@ class RecipeCollectionSuccessCard extends StatelessWidget {
       elevation: 5,
       child: RecipeCollectionListTile(
         recipe: recipe,
-        leading:
-            RecipeCollectionCheckbox(recipeId: recipe.id, onChanged: onChanged),
+        leading: RecipeCollectionCheckbox(recipe: recipe),
         onTap: NavigationService().navigateToRecipeScreen,
       ),
     );

@@ -1,13 +1,13 @@
 // lib/default_recipes/bacon_and_eggs_recipe.dart
 
 import 'package:flutter_recipes/models/ingredient/quantity.dart';
-import 'package:flutter_recipes/models/recipe/recipe.dart';
-import 'package:flutter_recipes/models/ingredient/ingredient.dart';
+import 'package:flutter_recipes/models/recipe/recipe_model.dart';
+import 'package:flutter_recipes/models/ingredient/ingredient_model.dart';
 import 'package:flutter_recipes/models/method/recipe_method_step_model.dart';
 import 'package:flutter_recipes/models/status.dart';
 
-Recipe getBaconAndEggsRecipe() {
-  return Recipe(
+RecipeModel getBaconAndEggsRecipe() {
+  return RecipeModel(
     title: 'Bacon and Eggs',
     ingredients: [
       IngredientWithQuantity(
@@ -40,8 +40,8 @@ Recipe getBaconAndEggsRecipe() {
   );
 }
 
-Recipe getSoftBoiledEggRecipe() {
-  return Recipe(
+RecipeModel getSoftBoiledEggRecipe() {
+  return RecipeModel(
     title: 'Soft Boiled Egg',
     ingredients: [
       IngredientWithQuantity(

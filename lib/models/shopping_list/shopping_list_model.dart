@@ -1,9 +1,9 @@
 import 'package:flutter_recipes/models/base_model.dart';
-import 'package:flutter_recipes/models/ingredient/ingredient.dart';
+import 'package:flutter_recipes/models/ingredient/ingredient_model.dart';
 import 'package:flutter_recipes/models/status.dart';
 import 'package:json_annotation/json_annotation.dart';
 
-part 'shopping_list.g.dart';
+part 'shopping_list_model.g.dart';
 
 @JsonSerializable(explicitToJson: true)
 class ShoppingList extends BaseModel {

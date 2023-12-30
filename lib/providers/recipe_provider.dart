@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_recipes/models/recipe/recipe.dart';
+import 'package:flutter_recipes/models/recipe/recipe_model.dart';
 import 'package:flutter_recipes/providers/user_provider.dart';
 import 'package:flutter_recipes/services/firestore_service.dart';
 import 'dart:developer' as developer;
@@ -7,15 +7,18 @@ import 'dart:developer' as developer;
 class RecipeProvider extends ChangeNotifier {
   final UserProvider userProvider;
   final FirestoreService firestoreService = FirestoreService();
-  final ValueNotifier<List<Recipe>> _recipes = ValueNotifier<List<Recipe>>([]);
-  Stream<List<Recipe>>? _recipeStream;
+  final ValueNotifier<List<RecipeModel>> _recipes =
+      ValueNotifier<List<RecipeModel>>([]);
+  final ValueNotifier<RecipeModel?> recipeNotifier =
+      ValueNotifier<RecipeModel?>(null); // Added this line
+  Stream<List<RecipeModel>>? _recipeStream;
 
   RecipeProvider({required this.userProvider}) {
     userProvider.addListener(_updateRecipeStream);
     _updateRecipeStream();
   }
 
-  ValueNotifier<List<Recipe>> get recipes => _recipes;
+  ValueNotifier<List<RecipeModel>> get recipes => _recipes;
 
   void _updateRecipeStream() {
     if (userProvider.user != null) {
@@ -36,9 +39,14 @@ class RecipeProvider extends ChangeNotifier {
     });
   }
 
-  void setRecipes(List<Recipe> newRecipes) {
+  void setRecipes(List<RecipeModel> newRecipes) {
     _recipes.value = newRecipes;
   }
+
+  void setRecipe(RecipeModel newRecipe) {
+    // Added this line
+    recipeNotifier.value = newRecipe; // Added this line
+  } // Added this line
 
   void removeRecipesByIds(List<String> recipeIds) {
     for (var id in recipeIds) {

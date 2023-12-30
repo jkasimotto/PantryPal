@@ -1,6 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:flutter_recipes/models/shopping_list/shopping_list.dart';
+import 'package:flutter_recipes/models/shopping_list/shopping_list_model.dart';
 import 'package:flutter_recipes/shared/linear_progress_with_widget.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 

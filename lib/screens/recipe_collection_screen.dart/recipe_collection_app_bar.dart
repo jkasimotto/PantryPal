@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_recipes/models/recipe/recipe.dart';
+import 'package:flutter_recipes/models/recipe/recipe_model.dart';
 import 'package:flutter_recipes/models/user/user_model.dart';
 import 'package:flutter_recipes/providers/selected_recipes_provider.dart';
-import 'package:flutter_recipes/shared/global_state.dart';
 import 'package:flutter_recipes/shared/global_keys.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:provider/provider.dart';
@@ -21,18 +20,15 @@ class RecipeCollectionAppBar extends StatelessWidget
 
   @override
   Widget build(BuildContext context) {
-    final SelectedRecipeProvider selectedRecipeProvider =
-        Provider.of<SelectedRecipeProvider>(context);
-
     return AppBar(
       title: const Text("Recipes"),
       backgroundColor: Theme.of(context).colorScheme.background,
       actions: <Widget>[
         // Use Consumer or Selector to listen to changes in selectedRecipes
         // Centered IconButton with a FontAwesome shopping cart icon
-        Consumer<GlobalState>(
-          builder: (context, homeScreenState, child) {
-            if (homeScreenState.selectedRecipes.isNotEmpty) {
+        Consumer<SelectedRecipeProvider>(
+          builder: (context, selectedRecipeProvider, child) {
+            if (selectedRecipeProvider.selectedRecipes.isNotEmpty) {
               return Row(
                 mainAxisSize: MainAxisSize.min,
                 children: <Widget>[
@@ -40,22 +36,23 @@ class RecipeCollectionAppBar extends StatelessWidget
                     key: shoppingListShowcaseKey,
                     title: 'Shopping List',
                     description: 'Combine recipes into one shopping list.',
-                    child: PopupMenuButton<Recipe>(
+                    child: PopupMenuButton<RecipeModel>(
                       icon: FaIcon(
                         FontAwesomeIcons.cartShopping,
                         color: Theme.of(context).colorScheme.onBackground,
                       ),
                       itemBuilder: (context) {
-                        var items = homeScreenState.selectedRecipes.values
+                        var items = selectedRecipeProvider
+                            .selectedRecipes.values
                             .map((recipe) {
-                          return PopupMenuItem<Recipe>(
+                          return PopupMenuItem<RecipeModel>(
                             value: recipe,
                             child: RecipeDropdownItem(recipe: recipe),
                           );
                         }).toList();
 
                         items.add(
-                          PopupMenuItem<Recipe>(
+                          PopupMenuItem<RecipeModel>(
                             child: ElevatedButton(
                               onPressed: () => handleShoppingList(context),
                               child: const Text('Create Shopping List'),
@@ -130,7 +127,7 @@ class RecipeCollectionAppBar extends StatelessWidget
 }
 
 class RecipeDropdownItem extends StatefulWidget {
-  final Recipe recipe;
+  final RecipeModel recipe;
 
   const RecipeDropdownItem({super.key, required this.recipe});
 
@@ -145,19 +142,26 @@ class _RecipeDropdownItemState extends State<RecipeDropdownItem> {
   @override
   void initState() {
     super.initState();
-    GlobalState globalState = Provider.of<GlobalState>(context, listen: false);
+    SelectedRecipeProvider selectedRecipeProvider =
+        Provider.of<SelectedRecipeProvider>(context, listen: false);
     servings = ValueNotifier<int>(
-        globalState.selectedRecipesServings[widget.recipe.meta.id] ??
+        selectedRecipeProvider.selectedRecipesServings[widget.recipe.meta.id] ??
             widget.recipe.servings);
   }
 
   @override
   Widget build(BuildContext context) {
-    GlobalState globalState = Provider.of<GlobalState>(context);
+    SelectedRecipeProvider selectedRecipeProvider =
+        Provider.of<SelectedRecipeProvider>(context, listen: false);
+
     return ListTile(
       title: Text(widget.recipe.title),
-      subtitle: Text(
-          'Serves: ${globalState.selectedRecipesServings[widget.recipe.meta.id] ?? servings.value}'),
+      subtitle: ValueListenableBuilder<int>(
+        valueListenable: servings,
+        builder: (context, value, child) {
+          return Text('Serves: $value');
+        },
+      ),
       trailing: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -166,7 +170,7 @@ class _RecipeDropdownItemState extends State<RecipeDropdownItem> {
             onPressed: () {
               if (servings.value > 1) {
                 servings.value--;
-                globalState.updateSelectedRecipeServings(
+                selectedRecipeProvider.updateSelectedRecipeServings(
                     widget.recipe.meta.id, servings.value);
               }
             },
@@ -175,7 +179,7 @@ class _RecipeDropdownItemState extends State<RecipeDropdownItem> {
             icon: const Icon(Icons.add),
             onPressed: () {
               servings.value++;
-              globalState.updateSelectedRecipeServings(
+              selectedRecipeProvider.updateSelectedRecipeServings(
                   widget.recipe.meta.id, servings.value);
             },
           ),

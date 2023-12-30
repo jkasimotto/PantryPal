@@ -1,12 +1,12 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'recipe.dart';
+part of 'recipe_model.dart';
 
 // **************************************************************************
 // JsonSerializableGenerator
 // **************************************************************************
 
-Recipe _$RecipeFromJson(Map<String, dynamic> json) => Recipe(
+RecipeModel _$RecipeModelFromJson(Map<String, dynamic> json) => RecipeModel(
       title: json['title'] as String,
       ingredients: (json['ingredients'] as List<dynamic>)
           .map(
@@ -24,7 +24,8 @@ Recipe _$RecipeFromJson(Map<String, dynamic> json) => Recipe(
       meta: RecipeMetadata.fromJson(json['meta'] as Map<String, dynamic>),
     );
 
-Map<String, dynamic> _$RecipeToJson(Recipe instance) => <String, dynamic>{
+Map<String, dynamic> _$RecipeModelToJson(RecipeModel instance) =>
+    <String, dynamic>{
       'title': instance.title,
       'ingredients': instance.ingredients.map((e) => e.toJson()).toList(),
       'method': instance.method.map((e) => e.toJson()).toList(),
