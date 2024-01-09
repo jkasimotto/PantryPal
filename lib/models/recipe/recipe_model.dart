@@ -143,6 +143,24 @@ class RecipeModel extends BaseModel {
         meta: newMeta);
   }
 
+  static RecipeModel empty() {
+    return RecipeModel(
+      title: '',
+      ingredients: [],
+      method: [],
+      cuisine: '',
+      course: '',
+      servings: 0,
+      prepTime: 0,
+      cookTime: 0,
+      notes: '',
+      meta: RecipeMetadata(
+        source: RecipeSource.text,
+        status: Status.success,
+      ),
+    );
+  }
+
   factory RecipeModel.fromJson(Map<String, dynamic> json) =>
       _$RecipeModelFromJson(json);
   Map<String, dynamic> toJson() => _$RecipeModelToJson(this);

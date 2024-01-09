@@ -22,7 +22,8 @@ class ShoppingListIngredient(IngredientWithQuantity):
 
 
 class ShoppingList(BaseModel):
-    recipe_titles: List[str]
+    id: str
+    recipeTitles: List[str]
     ingredients: List[ShoppingListIngredient]
 
 

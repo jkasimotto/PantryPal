@@ -2,9 +2,9 @@ import 'dart:developer' as developer;
 import 'package:flutter/material.dart';
 import 'package:flutter_recipes/models/recipe/recipe_model.dart';
 import 'package:flutter_recipes/models/shopping_list/shopping_list_model.dart'; // Added this import
-import 'package:flutter_recipes/providers/user_provider.dart';
-import 'package:flutter_recipes/screens/home_screen/home_screen.dart';
-import 'package:flutter_recipes/services/firestore_service.dart';
+import 'package:flutter_recipes/providers/models/user/user_provider.dart';
+import 'package:flutter_recipes/screens/home/home_screen.dart';
+import 'package:flutter_recipes/services/firebase/firestore_service.dart';
 import 'package:rxdart/rxdart.dart';
 
 /// `HomeScreenState` is a class that extends `ChangeNotifier` to provide

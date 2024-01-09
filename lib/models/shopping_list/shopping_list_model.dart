@@ -22,6 +22,18 @@ class ShoppingList extends BaseModel {
   factory ShoppingList.fromJson(Map<String, dynamic> json) =>
       _$ShoppingListFromJson(json);
   Map<String, dynamic> toJson() => _$ShoppingListToJson(this);
+
+  static ShoppingList empty() {
+    return ShoppingList(
+      recipeTitles: [],
+      ingredients: [],
+      meta: ShoppingListMetadata(
+        id: '',
+        ownerId: '',
+        status: Status.success,
+      ),
+    );
+  }
 }
 
 @JsonSerializable(explicitToJson: true)

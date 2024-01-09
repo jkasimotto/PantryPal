@@ -12,6 +12,18 @@ class Quantity {
     required this.units,
   });
 
+  get displayAmount {
+    if (amount == amount.toInt()) {
+      return amount.toInt();
+    } else {
+      return amount;
+    }
+  }
+
+  get prettyQuantity {
+    return '$displayAmount $units';
+  }
+
   factory Quantity.fromJson(Map<String, dynamic> json) =>
       _$QuantityFromJson(json);
   Map<String, dynamic> toJson() => _$QuantityToJson(this);

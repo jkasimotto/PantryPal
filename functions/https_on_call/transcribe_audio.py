@@ -6,7 +6,7 @@ import time
 from firebase_functions import https_fn
 from openai import OpenAI
 
-from functions.util.logging import log_performance
+from util.logging import log_performance
 
 
 @https_fn.on_call(secrets=['OPENAI_API_KEY'])
@@ -26,6 +26,7 @@ def transcribe_audio(req: https_fn.CallableRequest):
 
         # Create a BytesIO object from the audio bytes
         audio_file = io.BytesIO(audio_bytes)
+        audio_file.name = 'audio.m4a'
 
         audio_size = len(audio_bytes)
         logging.info(f"Audio size: {audio_size} bytes")
@@ -37,7 +38,7 @@ def transcribe_audio(req: https_fn.CallableRequest):
         )
 
         log_performance(start_time, "Audio transcription")
-        return {'status': 'success', 'transcript': transcript['text']}
+        return {'status': 'success', 'transcript': transcript.text}
     except Exception as e:
         logging.error('Error during transcription: %s', str(e))
         log_performance(start_time, "Failed audio transcription")

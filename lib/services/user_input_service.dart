@@ -2,9 +2,9 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_recipes/screens/home_screen/dialogs/text_dialog.dart';
-import 'package:flutter_recipes/screens/home_screen/dialogs/youtube_select_dialog.dart';
-import 'package:flutter_recipes/screens/home_screen/image_preview_dialog.dart';
+import 'package:flutter_recipes/shared/dialogs/text_dialog.dart';
+import 'package:flutter_recipes/shared/dialogs/youtube_select_dialog.dart';
+import 'package:flutter_recipes/shared/image/image_preview_dialog.dart';
 import 'package:image_picker/image_picker.dart';
 
 class UserInputService {

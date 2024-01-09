@@ -5,27 +5,27 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_recipes/firebase_options.dart';
-import 'package:flutter_recipes/providers/ad_provider.dart';
-import 'package:flutter_recipes/providers/bottom_nav_provider.dart';
-import 'package:flutter_recipes/providers/recipe_filter_provider.dart';
-import 'package:flutter_recipes/providers/recipe_provider.dart';
-import 'package:flutter_recipes/providers/selected_recipes_provider.dart';
-import 'package:flutter_recipes/providers/selected_shopping_list_provider.dart';
-import 'package:flutter_recipes/providers/shopping_list_provider.dart';
-import 'package:flutter_recipes/providers/ui_provider.dart';
-import 'package:flutter_recipes/services/ad_service.dart';
-import 'package:flutter_recipes/services/firestore_service.dart';
-import 'package:flutter_recipes/services/recipe_service.dart';
+import 'package:flutter_recipes/providers/ui/nav_provider.dart';
+import 'package:flutter_recipes/providers/models/recipes/recipe_filter_provider.dart';
+import 'package:flutter_recipes/providers/models/recipes/recipe_provider.dart';
+import 'package:flutter_recipes/providers/models/recipes/selected_recipes_provider.dart';
+import 'package:flutter_recipes/providers/models/shopping_lists/selected_shopping_list_provider.dart';
+import 'package:flutter_recipes/providers/models/shopping_lists/shopping_list_provider.dart';
+import 'package:flutter_recipes/providers/ui/showcaseview_provider.dart';
+import 'package:flutter_recipes/providers/ui/ui_provider.dart';
+import 'package:flutter_recipes/services/business/ad_service.dart';
+import 'package:flutter_recipes/services/firebase/firestore_service.dart';
+import 'package:flutter_recipes/services/business/recipe_service.dart';
 import 'package:flutter_recipes/shared/global_state.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart'; // Added this line
 import 'package:provider/provider.dart';
 import 'package:provider/single_child_widget.dart';
 import 'package:showcaseview/showcaseview.dart'; // Added this line
 
-import 'providers/user_provider.dart';
+import 'providers/models/user/user_provider.dart';
 import 'routes.dart'; // Import routes.dart
-import 'services/auth_service.dart';
-import 'services/logger.dart';
+import 'services/firebase/auth_service.dart';
+import 'services/logging/logger.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -98,6 +98,12 @@ void main() async {
   // UI Provider
   UIProvider uiProvider = UIProvider();
 
+  // Nav
+  NavProvider navProvider = NavProvider();
+
+  // Showcase
+  ShowcaseProvider showcaseProvider = ShowcaseProvider();
+
   runApp(
     // COmment
     ShowCaseWidget(
@@ -111,7 +117,7 @@ void main() async {
               create: (context) => authService,
             ),
             ChangeNotifierProvider(
-              create: (context) => BottomNavBarProvider(),
+              create: (context) => navProvider,
             ),
             ChangeNotifierProvider(
                 create: (context) => GlobalState(userProvider)),
@@ -133,6 +139,9 @@ void main() async {
             ),
             ChangeNotifierProvider(
               create: (context) => uiProvider,
+            ),
+            ChangeNotifierProvider(
+              create: (context) => showcaseProvider,
             ),
           ],
           child: const MyApp(),
