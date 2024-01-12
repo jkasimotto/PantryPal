@@ -95,8 +95,6 @@ flutter:
   #   - images/a_dot_ham.jpeg
   assets:
     - assets/emojis/
-    - assets/images/
-    - assets/images/food/
 
 flutter_launcher_icons:
   android: "launcher_icon"
