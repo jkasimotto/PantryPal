@@ -58,15 +58,6 @@ class RecipeCollectionFAB extends StatelessWidget {
                     showDialog(
                         context: context,
                         builder: (context) => TranscriptionDialog());
-                    final recipeText = await userInputService.selectRecipeText(
-                        context,
-                        userProvider.user?.metadata.hasCompletedTextAction ??
-                            false);
-                    if (recipeText != null) {
-                      if (context.mounted) {
-                        recipeService.extractRecipeFromText(recipeText);
-                      }
-                    }
                   }),
                   _buildOptionRow(context, FontAwesomeIcons.google, 'Website',
                       () async {

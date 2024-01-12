@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:flutter_recipes/main.dart';
 import 'package:flutter_recipes/providers/models/recipes/recipe_provider.dart';
 import 'package:flutter_recipes/providers/models/user/user_provider.dart';
 import 'package:flutter_recipes/services/business/ad_service.dart';
@@ -11,8 +10,8 @@ import 'package:flutter_recipes/services/firebase/firestore_service.dart';
 import 'package:flutter_recipes/services/business/recipe_service.dart';
 import 'package:provider/provider.dart';
 import 'package:record/record.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:audioplayers/audioplayers.dart';
+import 'package:path_provider/path_provider.dart';
 
 class TranscriptionDialog extends StatefulWidget {
   @override
@@ -66,9 +65,6 @@ class _TranscriptionDialogState extends State<TranscriptionDialog>
         setState(() {
           _isRecording = isRecording;
         });
-
-        _startTimer();
-        _animationController.repeat();
       }
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -104,6 +100,18 @@ class _TranscriptionDialogState extends State<TranscriptionDialog>
         _isTranscribing =
             false; // Set transcribing to false when transcription is done
       });
+
+      // If transcription is not empty, perform the send action
+      if (_transcription.isNotEmpty) {
+        RecipeService recipeService = RecipeService(
+          firestoreService: FirestoreService(),
+          userProvider: Provider.of<UserProvider>(context, listen: false),
+          adService: Provider.of<AdService>(context, listen: false),
+          recipeProvider: Provider.of<RecipeProvider>(context, listen: false),
+        );
+        recipeService.extractRecipeFromText(_transcription);
+        Navigator.of(context).pop(); // Add this line
+      }
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Error stopping recording: $e')),
@@ -111,79 +119,51 @@ class _TranscriptionDialogState extends State<TranscriptionDialog>
     }
   }
 
-  void _startTimer() {
-    const tick = Duration(seconds: 1);
-
-    _timer?.cancel();
-
-    _timer = Timer.periodic(tick, (Timer t) async {
-      if (!_isRecording) {
-        t.cancel();
-      }
-
-      // Update your state
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
-    return AlertDialog(
-      title: const Text('Speak your recipe'),
-      content: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: <Widget>[
-          if (_transcription.isNotEmpty)
-            TextField(
-              controller: TextEditingController(text: _transcription),
-              readOnly: true,
-              maxLines: null,
+    return Dialog(
+      backgroundColor: Theme.of(context).colorScheme.surface,
+      child: Padding(
+        padding: const EdgeInsets.all(20.0),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: <Widget>[
+            Image.asset('assets/emojis/smiling-dog-wearing-chefs-hat.png'),
+            Text(
+              'You can speak your recipe aloud as if you were telling a friend.',
+              textAlign: TextAlign.center,
+              style: TextStyle(fontSize: 16),
             ),
-        ],
+            SizedBox(height: 20),
+            Center(
+              child: _isTranscribing
+                  ? CircularProgressIndicator()
+                  : _transcription.isEmpty
+                      ? IconTheme(
+                          data: IconThemeData(
+                            size: 60,
+                          ),
+                          child: IconButton(
+                            icon: _isRecording
+                                ? const Icon(Icons.stop, color: Colors.red)
+                                : Icon(Icons.mic,
+                                    color:
+                                        Theme.of(context).colorScheme.primary),
+                            onPressed:
+                                _isRecording ? _stopRecording : _startRecording,
+                          ),
+                        )
+                      : Container(),
+            ),
+            TextButton(
+              child: const Text('Cancel'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        ),
       ),
-      actions: <Widget>[
-        Center(
-          child: _isTranscribing
-              ? CircularProgressIndicator()
-              : _transcription.isEmpty
-                  ? IconTheme(
-                      data: IconThemeData(
-                        size: 60, // Increase the size as needed
-                      ),
-                      child: IconButton(
-                        icon: _isRecording
-                            ? const Icon(Icons.stop, color: Colors.red)
-                            : Icon(Icons.mic,
-                                color: Theme.of(context).colorScheme.primary),
-                        onPressed:
-                            _isRecording ? _stopRecording : _startRecording,
-                      ),
-                    )
-                  : Container(),
-        ),
-        TextButton(
-          onPressed: _transcription.isNotEmpty
-              ? () {
-                  RecipeService recipeService = RecipeService(
-                    firestoreService: FirestoreService(),
-                    userProvider:
-                        Provider.of<UserProvider>(context, listen: false),
-                    adService: Provider.of<AdService>(context, listen: false),
-                    recipeProvider:
-                        Provider.of<RecipeProvider>(context, listen: false),
-                  );
-                  recipeService.extractRecipeFromText(_transcription);
-                  Navigator.of(context).pop(); // Add this line
-                }
-              : null,
-          child: const Text('Send'),
-        ),
-        TextButton(
-          child: const Text('Cancel'),
-          onPressed: () {
-            Navigator.of(context).pop();
-          },
-        ),
-      ],
     );
   }
 }

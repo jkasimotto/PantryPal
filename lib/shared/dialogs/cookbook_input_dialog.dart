@@ -39,241 +39,138 @@ class _CookbookInputDialogState extends State<CookbookInputDialog> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: LayoutBuilder(
-        builder: (BuildContext context, BoxConstraints viewportConstraints) {
-          return ConstrainedBox(
-            constraints: BoxConstraints(
-              maxHeight: viewportConstraints.maxHeight,
+    List<XFile?> allImages = [titleImage] + ingredientImages + methodImages;
+    return Dialog(
+      backgroundColor: Theme.of(context).colorScheme.surface,
+      child: Padding(
+        padding: const EdgeInsets.all(20.0),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: <Widget>[
+            Image.asset('assets/emojis/smiling-dog-wearing-chefs-hat.png'),
+            const Text(
+              'Photograph the title, ingredients, and method.',
+              textAlign: TextAlign.center,
+              style: TextStyle(fontSize: 16),
             ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
+            const SizedBox(height: 20),
+            Row(
               children: [
-                Expanded(
-                  child: _buildRow(
-                      'Title',
-                      viewportConstraints.maxHeight / 3,
-                      [titleImage],
-                      (index, image) => setState(() => titleImage = image),
-                      (index) => onImageDeleted(index, 'Title')),
-                ),
-                const Divider(),
-                Expanded(
-                  child: _buildRow(
-                      'Ingredients',
-                      viewportConstraints.maxHeight / 3,
-                      ingredientImages,
-                      (index, image) =>
-                          setState(() => ingredientImages[index] = image),
-                      (index) => onImageDeleted(index, 'Ingredients')),
-                ),
-                const Divider(),
-                Expanded(
-                  child: _buildRow(
-                      'Method',
-                      viewportConstraints.maxHeight / 3,
-                      methodImages,
-                      (index, image) =>
-                          setState(() => methodImages[index] = image),
-                      (index) => onImageDeleted(index, 'Method')),
+                ...List.generate(
+                  4,
+                  (index) => Expanded(
+                    child: _buildThumbnail(allImages, index),
+                  ),
                 ),
               ],
             ),
-          );
-        },
-      ),
-      bottomNavigationBar: BottomNavigationBar(
-        backgroundColor: Theme.of(context).colorScheme.primary,
-        items: const <BottomNavigationBarItem>[
-          BottomNavigationBarItem(
-            icon: FaIcon(FontAwesomeIcons.x),
-            label: 'Cancel',
-          ),
-          BottomNavigationBarItem(
-            icon: FaIcon(FontAwesomeIcons.check),
-            label: 'Create',
-          ),
-        ],
-        selectedItemColor: Theme.of(context).colorScheme.onPrimary,
-        unselectedItemColor: Theme.of(context).colorScheme.onPrimary,
-        onTap: (index) {
-          if (index == 0) {
-            Navigator.pop(context);
-          } else if (index == 1) {
-            // Create a map of images
-            Map<String, List<XFile?>> imagesMap = {
-              'titleImage': [titleImage],
-              'ingredientImages': ingredientImages,
-              'methodImages': methodImages,
-            };
-
-            // Pop the map
-            Navigator.pop(context, imagesMap);
-          }
-        },
-      ),
-    );
-  }
-
-Widget _buildRow(String label, double height, List<XFile?> images,
-      Function(int, XFile) onImageSelected, Function(int) onImageDeleted) {
-    return Card(
-      margin: const EdgeInsets.all(10.0),
-      child: Padding(
-        padding: const EdgeInsets.all(10.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: [
-            Text(
-              label,
-              style: const TextStyle(
-                fontSize: 20.0,
-              ),
-            ),
-            const Divider(),
-            Expanded(
-              child: SizedBox(
-                height: 150,
-                child: ListView.builder(
-                  scrollDirection: Axis.horizontal,
-                  itemCount: images.length + 1,
-                  itemBuilder: (context, index) {
-                    if (index == images.length) {
-                      if (images.where((image) => image != null).length ==
-                          images.length) {
-                        return Container();
-                      }
-                      return Align(
-                        alignment: Alignment.center,
-                        child: NewImageButton(
-                          userInputService: widget.userInputService,
-                          onImageSelected: onImageSelected,
-                          images: images,
-                        ),
-                      );
-                    } else {
-                      XFile? image = images[index];
-                      if (image != null) {
-                        return Stack(
-                          children: [
-                            Padding(
-                              padding: const EdgeInsets.only(right: 8.0),
-                              child: Image.file(
-                                File(image.path),
-                              ),
-                            ),
-                            Positioned(
-                              right: 0,
-                              child: Transform.translate(
-                                offset: const Offset(10, -10),
-                                child: Transform.scale(
-                                  scale: 0.5,
-                                  child: Container(
-                                    decoration: BoxDecoration(
-                                      color:
-                                          Theme.of(context).colorScheme.primary,
-                                      shape: BoxShape.circle,
-                                    ),
-                                    child: IconButton(
-                                      icon: FaIcon(FontAwesomeIcons.x,
-                                          size: 30.0,
-                                          color: Theme.of(context)
-                                              .colorScheme
-                                              .onPrimary),
-                                      onPressed: () => onImageDeleted(index),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ],
-                        );
-                      } else {
-                        return Container();
-                      }
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: <Widget>[
+                TextButton(
+                  child: Text('Cancel'),
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                ),
+                TextButton(
+                  child: Text('Send'),
+                  onPressed: () {
+                    if (allImages.where((image) => image != null).length > 0) {
+                      Navigator.of(context).pop({
+                        'titleImage': [titleImage],
+                        'ingredientImages': ingredientImages,
+                        'methodImages': methodImages,
+                      });
                     }
                   },
                 ),
-              ),
+              ],
             ),
           ],
         ),
       ),
     );
   }
-}
 
-class NewImageButton extends StatelessWidget {
-  final UserInputService userInputService;
-  final Function(int, XFile) onImageSelected;
-  final List<XFile?> images;
-
-  const NewImageButton({
-    Key? key,
-    required this.userInputService,
-    required this.onImageSelected,
-    required this.images,
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Transform.scale(
-      scale: 0.7,
-      alignment: Alignment.centerLeft,
-      child: Container(
-        height: 120,
-        padding: const EdgeInsets.all(8.0),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(10),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.grey.withOpacity(0.5),
-              spreadRadius: 2,
-              blurRadius: 5,
-              offset: const Offset(0, 3),
-            ),
-          ],
+  Widget _buildThumbnail(List<XFile?> allImages, int index) {
+    if (index < allImages.length && allImages[index] != null) {
+      return Image.file(
+        File(allImages[index]!.path),
+        fit: BoxFit.cover,
+      );
+    } else {
+      return GestureDetector(
+        onTap: () {
+          showModalBottomSheet(
+            context: context,
+            builder: (context) {
+              return Padding(
+                padding: const EdgeInsets.only(bottom: 20.0),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: <Widget>[
+                    ListTile(
+                      leading: Icon(Icons.camera),
+                      title: Text('Take a photo'),
+                      onTap: () async {
+                        final selectedImage = await widget.userInputService
+                            .selectImageFromCamera(false);
+                        if (selectedImage != null) {
+                          setState(() {
+                            if (titleImage == null) {
+                              titleImage = selectedImage;
+                            } else if (ingredientImages.contains(null)) {
+                              ingredientImages[ingredientImages.indexWhere(
+                                  (image) => image == null)] = selectedImage;
+                            } else if (methodImages.contains(null)) {
+                              methodImages[methodImages.indexWhere(
+                                  (image) => image == null)] = selectedImage;
+                            }
+                          });
+                        }
+                        Navigator.pop(context);
+                      },
+                    ),
+                    ListTile(
+                      leading: Icon(Icons.photo_library),
+                      title: Text('Select from gallery'),
+                      onTap: () async {
+                        final selectedImages = await widget.userInputService
+                            .selectImagesFromGallery(false);
+                        if (selectedImages != null &&
+                            selectedImages.isNotEmpty) {
+                          setState(() {
+                            for (var selectedImage in selectedImages) {
+                              if (titleImage == null) {
+                                titleImage = selectedImage;
+                              } else if (ingredientImages.contains(null)) {
+                                ingredientImages[ingredientImages.indexWhere(
+                                    (image) => image == null)] = selectedImage;
+                              } else if (methodImages.contains(null)) {
+                                methodImages[methodImages.indexWhere(
+                                    (image) => image == null)] = selectedImage;
+                              }
+                            }
+                          });
+                        }
+                        Navigator.pop(context);
+                      },
+                    ),
+                  ],
+                ),
+              );
+            },
+          );
+        },
+        child: Container(
+          height: 50,
+          decoration: BoxDecoration(
+            border: Border.all(color: Colors.grey),
+          ),
+          child: Icon(Icons.add_a_photo),
         ),
-        child: Row(
-          children: [
-            IconButton(
-              icon: const FaIcon(
-                FontAwesomeIcons.camera,
-                size: 30.0,
-              ),
-              onPressed: () async {
-                final selectedImage =
-                    await userInputService.selectImageFromCamera(false);
-                if (selectedImage != null) {
-                  int index = images.indexWhere((image) => image == null);
-                  if (index != -1) {
-                    onImageSelected(index, selectedImage);
-                  }
-                }
-              },
-            ),
-            const VerticalDivider(),
-            IconButton(
-              icon: const Icon(Icons.photo_library, size: 30.0),
-              onPressed: () async {
-                final selectedImages =
-                    await userInputService.selectImagesFromGallery(false);
-                if (selectedImages != null) {
-                  for (var i = 0; i < selectedImages.length; i++) {
-                    int index = images.indexWhere((image) => image == null);
-                    if (index != -1) {
-                      onImageSelected(index, selectedImages[i]);
-                    }
-                  }
-                }
-              },
-            ),
-          ],
-        ),
-      ),
-    );
+      );
+    }
   }
 }
