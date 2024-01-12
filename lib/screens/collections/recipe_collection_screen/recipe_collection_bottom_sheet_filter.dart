@@ -17,7 +17,7 @@ class RecipeCollectionBottomSheetFilter extends StatefulWidget {
 
 class _RecipeCollectionBottomSheetFilterState
     extends State<RecipeCollectionBottomSheetFilter> {
-  double height = 48.0; // initial height
+  double height = 54.0; // initial height
 
   @override
   Widget build(BuildContext context) {

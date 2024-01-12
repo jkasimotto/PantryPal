@@ -98,13 +98,13 @@ class RecipeCollectionBottomSheetAddRecipe extends StatelessWidget {
                   showDialog(
                       context: context,
                       builder: (context) => TranscriptionDialog());
-                  // final recipeText = await userInputService.selectRecipeText(
-                  //     context, user.metadata.hasCompletedTextAction);
-                  // if (recipeText != null) {
-                  //   if (context.mounted) {
-                  //     recipeService.extractRecipeFromText(recipeText);
-                  //   }
-                  // }
+                  final recipeText = await userInputService.selectRecipeText(
+                      context, user.metadata.hasCompletedTextAction);
+                  if (recipeText != null) {
+                    if (context.mounted) {
+                      recipeService.extractRecipeFromText(recipeText);
+                    }
+                  }
                 },
               ),
               _buildActionTile(

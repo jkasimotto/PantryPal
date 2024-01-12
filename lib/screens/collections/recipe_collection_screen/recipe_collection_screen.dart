@@ -42,7 +42,8 @@ class RecipeCollectionScreen extends StatelessWidget {
           handleShoppingList: _handleShoppingList,
         ),
         body: const RecipeCollectionBody(),
-        floatingActionButton: const RecipeCollectionFAB(),
+        floatingActionButton:
+            RecipeCollectionFAB(userInputService: userInputService),
         floatingActionButtonLocation: FloatingActionButtonLocation.miniEndFloat,
         bottomNavigationBar: BottomNavBar(),
         bottomSheet: RecipeCollectionBottomSheet(
