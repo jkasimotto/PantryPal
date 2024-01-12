@@ -3,7 +3,6 @@ import 'package:flutter_recipes/models/recipe/recipe_model.dart';
 import 'package:flutter_recipes/providers/models/recipes/recipe_filter_provider.dart';
 import 'package:flutter_recipes/providers/models/recipes/recipe_provider.dart';
 import 'package:flutter_recipes/screens/collections/recipe_collection_screen/recipe_collection_card.dart';
-import 'package:flutter_recipes/shared/global_state.dart';
 import 'package:provider/provider.dart';
 
 class RecipeCollectionListView extends StatelessWidget {
@@ -12,18 +11,14 @@ class RecipeCollectionListView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final recipeProvider = Provider.of<RecipeProvider>(context, listen: false);
-    final recipeFilterProvider =
-        Provider.of<RecipeFilterProvider>(context, listen: false);
 
-    return Consumer<GlobalState>(
-      builder: (context, globalState, child) {
+    return Consumer<RecipeFilterProvider>(
+      builder: (context, recipeFilterProvider, child) {
         return ValueListenableBuilder<List<RecipeModel>>(
-          valueListenable:
-              recipeProvider.recipes, // Updated to use RecipeProvider
+          valueListenable: recipeProvider.recipes,
           builder: (context, recipes, child) {
             List<RecipeModel> filteredRecipes =
-                recipeFilterProvider.filterRecipes(
-                    recipes); // Using RecipeFilterProvider's filter method
+                recipeFilterProvider.filterRecipes(recipes);
 
             return ListView.builder(
               itemCount: filteredRecipes.length,
