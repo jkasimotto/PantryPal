@@ -22,6 +22,10 @@ RecipeModel _$RecipeModelFromJson(Map<String, dynamic> json) => RecipeModel(
       cookTime: json['cookTime'] as int,
       notes: json['notes'] as String?,
       meta: RecipeMetadata.fromJson(json['meta'] as Map<String, dynamic>),
+      firebaseImagePaths: (json['firebaseImagePaths'] as List<dynamic>?)
+              ?.map((e) => e as String)
+              .toList() ??
+          const [],
     );
 
 Map<String, dynamic> _$RecipeModelToJson(RecipeModel instance) =>
@@ -36,6 +40,7 @@ Map<String, dynamic> _$RecipeModelToJson(RecipeModel instance) =>
       'cookTime': instance.cookTime,
       'notes': instance.notes,
       'meta': instance.meta.toJson(),
+      'firebaseImagePaths': instance.firebaseImagePaths,
     };
 
 RecipeMetadata _$RecipeMetadataFromJson(Map<String, dynamic> json) =>

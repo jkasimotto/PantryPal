@@ -14,7 +14,8 @@ class ViewIngredientCompactCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Card(
       child: ListTile(
-        leading: buildIngredientIcon(ingredient.meta.iconPath),
+        leading: buildFirebaseNetworkImage(
+            firebaseImagePath: ingredient.meta.iconPath),
         title: Text(ingredient.name),
         subtitle: Text('${ingredient.quantity.prettyQuantity}'),
       ),

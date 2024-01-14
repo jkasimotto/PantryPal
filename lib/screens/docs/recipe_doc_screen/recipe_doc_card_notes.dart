@@ -14,6 +14,7 @@ class RecipeDocCardNotes extends StatelessWidget {
       child: ListTile(
         leading: const Icon(Icons.note),
         title: TextField(
+          maxLines: null,
           controller: _notesController,
           decoration: const InputDecoration(
             labelText: 'Notes',

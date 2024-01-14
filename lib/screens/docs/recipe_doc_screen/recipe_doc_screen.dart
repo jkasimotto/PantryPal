@@ -1,18 +1,25 @@
+import 'dart:io';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_recipes/models/method/recipe_method_step_model.dart';
 import 'package:flutter_recipes/models/recipe/recipe_model.dart';
 import 'package:flutter_recipes/providers/models/recipes/recipe_provider.dart';
+import 'package:flutter_recipes/providers/models/user/user_provider.dart';
 import 'package:flutter_recipes/screens/docs/recipe_doc_screen/recipe_doc_app_bar.dart';
+import 'package:flutter_recipes/screens/docs/recipe_doc_screen/recipe_doc_card_details.dart';
 import 'package:flutter_recipes/screens/docs/recipe_doc_screen/recipe_doc_card_ingredients.dart';
 import 'package:flutter_recipes/screens/docs/recipe_doc_screen/recipe_doc_card_method.dart';
 import 'package:flutter_recipes/screens/docs/recipe_doc_screen/recipe_doc_card_notes.dart';
-import 'package:flutter_recipes/screens/docs/recipe_doc_screen/recipe_doc_card_servings.dart';
-import 'package:flutter_recipes/screens/docs/recipe_doc_screen/recipe_doc_card_time.dart';
-import 'package:flutter_recipes/screens/docs/recipe_doc_screen/recipe_doc_card_cuisine.dart';
-import 'package:flutter_recipes/screens/docs/recipe_doc_screen/recipe_doc_card_title.dart';
 import 'package:flutter_recipes/screens/docs/recipe_doc_screen/recipe_doc_controller.dart';
+import 'package:flutter_recipes/services/business/ad_service.dart';
+import 'package:flutter_recipes/services/business/recipe_service.dart';
 import 'package:flutter_recipes/services/firebase/firestore_service.dart';
+import 'package:flutter_recipes/services/firebase/storage_service.dart';
+import 'package:flutter_recipes/services/user_input_service.dart';
+import 'package:flutter_recipes/shared/grid/draggable_grid.dart';
+import 'package:flutter_recipes/shared/image/image_thumbnail.dart'; // New import
+import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 
 class RecipeDocScreen extends StatefulWidget {
@@ -48,6 +55,12 @@ class _RecipeDocScreenState extends State<RecipeDocScreen> {
 
   @override
   Widget build(BuildContext context) {
+    RecipeService recipeService = RecipeService(
+        firestoreService: FirestoreService(),
+        userProvider: Provider.of<UserProvider>(context),
+        adService: Provider.of<AdService>(context),
+        recipeProvider: Provider.of<RecipeProvider>(context),
+        storageService: StorageService());
     return ValueListenableBuilder(
         valueListenable: _recipeNotifier,
         builder:
@@ -58,13 +71,12 @@ class _RecipeDocScreenState extends State<RecipeDocScreen> {
               padding: const EdgeInsets.all(8.0),
               child: ListView(
                 children: <Widget>[
-                  buildRecipeDocTitleCard(updatedRecipe),
-                  buildRecipeDocCuisineCard(updatedRecipe),
-                  buildRecipeDocTimerCard(updatedRecipe),
-                  buildRecipeDocServingsCard(updatedRecipe),
+                  buildRecipeDocDetailsCard(updatedRecipe),
                   buildRecipeDocIngredientListCard(updatedRecipe),
                   buildRecipeDocMethodListCard(updatedRecipe),
                   buildRecipeDocNotesCard(updatedRecipe),
+                  buildImageGrid(
+                      recipeService, updatedRecipe), // Added this line
                 ],
               ),
             ),
@@ -72,28 +84,13 @@ class _RecipeDocScreenState extends State<RecipeDocScreen> {
         });
   }
 
-  Widget buildRecipeDocTitleCard(RecipeModel updatedRecipe) {
-    return RecipeDocCardTitle(
+  Widget buildRecipeDocDetailsCard(RecipeModel updatedRecipe) {
+    return RecipeDocDetailsCard(
       titleController: _recipeController.titleController,
-    );
-  }
-
-  Widget buildRecipeDocTimerCard(RecipeModel updatedRecipe) {
-    return RecipeDocCardTime(
       prepTimeController: _recipeController.prepTimeController,
       cookTimeController: _recipeController.cookTimeController,
-    );
-  }
-
-  Widget buildRecipeDocCuisineCard(RecipeModel updatedRecipe) {
-    return RecipeDocCardCuisine(
       cuisineController: _recipeController.cuisineController,
       courseController: _recipeController.courseController,
-    );
-  }
-
-  Widget buildRecipeDocServingsCard(RecipeModel updatedRecipe) {
-    return RecipeDocCardServings(
       servingsController: _recipeController.servingsController,
     );
   }
@@ -116,6 +113,70 @@ class _RecipeDocScreenState extends State<RecipeDocScreen> {
   Widget buildRecipeDocNotesCard(RecipeModel updatedRecipe) {
     return RecipeDocCardNotes(
       notesController: _recipeController.notesController,
+    );
+  }
+
+  Widget buildImageGrid(
+      RecipeService recipeService, RecipeModel updatedRecipe) {
+    // Define image thumbnail sizes
+    const double imageThumbnailWidth = 100.0;
+    const double imageThumbnailHeight = 100.0;
+
+    // Define grid count
+    const int gridCount = 3;
+
+    // Calculate grid height
+    final int numberOfImages = updatedRecipe.firebaseImagePaths.length +
+        1; // +1 for the add image thumbnail
+    final int numberOfRows = (numberOfImages / gridCount).ceil();
+    final double gridHeight = numberOfRows * imageThumbnailHeight;
+
+    // Print the paths
+    for (var path in updatedRecipe.firebaseImagePaths) {
+      print('Image path: $path');
+    }
+
+    return SizedBox(
+      height: gridHeight,
+      child: DraggableGrid(
+        items: [
+          ...updatedRecipe.firebaseImagePaths.map((path) {
+            return ImageThumbnail(
+              firebaseImagePath: path,
+              width: imageThumbnailWidth,
+              height: imageThumbnailHeight,
+            );
+          }).toList(),
+          buildAddImageThumbnail(recipeService), // Add the add image thumbnail
+        ],
+        onReorder: (oldIndex, newIndex) {
+          setState(() {
+            updatedRecipe = updatedRecipe.reorderImages(oldIndex, newIndex);
+            _firestoreService.updateDocument(updatedRecipe, 'recipes');
+          });
+        },
+        crossAxisCount: gridCount,
+      ),
+    );
+  }
+
+  Widget buildAddImageThumbnail(RecipeService recipeService) {
+    return GestureDetector(
+      onTap: () async {
+        UserInputService userInputService = UserInputService();
+        List<XFile>? images =
+            await userInputService.showImageSourceSelection(context);
+        if (images != null) {
+          for (var image in images) {
+            recipeService.addImagePathToRecipe(widget.recipe, File(image.path));
+          }
+        }
+      },
+      child: ImageThumbnail(
+        icon: Icons.add,
+        width: 100.0,
+        height: 100.0,
+      ),
     );
   }
 

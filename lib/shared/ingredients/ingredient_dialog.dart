@@ -65,8 +65,9 @@ class _IngredientDialogState extends State<IngredientDialog> {
             children: <Widget>[
               if (ingredientMeta.iconPath.isNotEmpty &&
                   !ingredientMeta.iconPath.endsWith('default.png'))
-                buildIngredientIcon(ingredientMeta
-                    .iconPath), // Display the icon if iconPath is not empty and does not end with 'default.png'
+                buildFirebaseNetworkImage(
+                    firebaseImagePath: ingredientMeta
+                        .iconPath), // Display the icon if iconPath is not empty and does not end with 'default.png'
               TextField(
                 controller: widget.nameController,
                 focusNode: nameFocusNode,

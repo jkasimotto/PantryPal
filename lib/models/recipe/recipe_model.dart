@@ -20,6 +20,7 @@ class RecipeModel extends BaseModel {
   final int cookTime;
   final String? notes;
   final RecipeMetadata meta;
+  final List<String> firebaseImagePaths;
 
   RecipeModel(
       {required this.title,
@@ -31,7 +32,8 @@ class RecipeModel extends BaseModel {
       required this.prepTime,
       required this.cookTime,
       this.notes,
-      required this.meta});
+      required this.meta,
+      this.firebaseImagePaths = const []});
 
   @override
   String get id => meta.id;
@@ -49,6 +51,7 @@ class RecipeModel extends BaseModel {
     int? cookTime,
     String? notes,
     RecipeMetadata? meta,
+    List<String>? firebaseImagePaths,
   }) {
     return RecipeModel(
       title: title ?? this.title,
@@ -61,6 +64,7 @@ class RecipeModel extends BaseModel {
       cookTime: cookTime ?? this.cookTime,
       notes: notes ?? this.notes,
       meta: meta ?? this.meta,
+      firebaseImagePaths: firebaseImagePaths ?? this.firebaseImagePaths,
     );
   }
 
@@ -159,6 +163,26 @@ class RecipeModel extends BaseModel {
         status: Status.success,
       ),
     );
+  }
+
+  RecipeModel addImagePath(String newImagePath) {
+    List<String> updatedImagePaths = List.from(firebaseImagePaths);
+    updatedImagePaths.add(newImagePath);
+    return copyWith(firebaseImagePaths: updatedImagePaths);
+  }
+
+  RecipeModel removeImagePath(String imagePathToRemove) {
+    List<String> updatedImagePaths = firebaseImagePaths.where((imagePath) {
+      return imagePath != imagePathToRemove;
+    }).toList();
+    return copyWith(firebaseImagePaths: updatedImagePaths);
+  }
+
+  RecipeModel reorderImages(int oldIndex, int newIndex) {
+    List<String> updatedImagePaths = List.from(firebaseImagePaths);
+    String imagePath = updatedImagePaths.removeAt(oldIndex);
+    updatedImagePaths.insert(newIndex, imagePath);
+    return copyWith(firebaseImagePaths: updatedImagePaths);
   }
 
   factory RecipeModel.fromJson(Map<String, dynamic> json) =>

@@ -20,7 +20,8 @@ class ViewIngredientGridCard extends StatelessWidget {
               style: const TextStyle(fontSize: 12),
             ),
             Expanded(
-              child: buildIngredientIcon(ingredient.meta.iconPath),
+              child: buildFirebaseNetworkImage(
+                  firebaseImagePath: ingredient.meta.iconPath),
             ),
           ],
         ),

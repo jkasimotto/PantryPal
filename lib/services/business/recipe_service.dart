@@ -1,6 +1,7 @@
 // lib/controllers/recipe_controller.dart
 import 'dart:convert';
 import 'dart:developer' as developer;
+import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter_recipes/const/default_recipes.dart';
@@ -14,6 +15,7 @@ import 'package:flutter_recipes/services/business/ad_service.dart';
 import 'package:flutter_recipes/services/firebase/cloud_functions_service.dart'
     as cloud_functions;
 import 'package:flutter_recipes/services/firebase/firestore_service.dart';
+import 'package:flutter_recipes/services/firebase/storage_service.dart';
 import 'package:flutter_recipes/shared/util/image.dart';
 import 'package:flutter_recipes/shared/util/json.dart';
 import 'package:image_picker/image_picker.dart';
@@ -27,6 +29,8 @@ class RecipeService {
   final UserProvider userProvider; // Added this line
   final AdService adService;
   final RecipeProvider recipeProvider;
+  final StorageService? storageService; // Made this nullable
+
   final uuid = const Uuid();
 
   RecipeService({
@@ -34,6 +38,7 @@ class RecipeService {
     required this.userProvider,
     required this.adService,
     required this.recipeProvider,
+    this.storageService,
   }); // Updated this line
 
   UserModel? get user {
@@ -272,6 +277,31 @@ class RecipeService {
 
     // If the recipe exists, remove the ingredient
     RecipeModel updatedRecipe = recipe.removeIngredient(ingredientToRemove.id);
+
+    // Update the recipe in Firestore
+    await firestoreService.updateDocument(updatedRecipe, 'recipes');
+  }
+
+  Future<void> updateImageOrderInRecipe(RecipeModel updatedRecipe) async {
+    // Update the recipe in Firestore
+    await firestoreService.updateDocument(updatedRecipe, 'recipes');
+  }
+
+  Future<void> addImagePathToRecipe(RecipeModel recipe, File imageFile) async {
+    // Check if storageService is null
+    if (storageService == null) {
+      throw Exception('StorageService is not initialized.');
+    }
+
+    // Define a sensible path for an image for a recipe for a user
+    String path =
+        'users/${userProvider.user!.id}/recipes/${recipe.id}/images/${uuid.v4()}';
+
+    // Upload the image
+    await storageService!.uploadImage(imageFile, path);
+
+    // Add the image URL to the recipe
+    RecipeModel updatedRecipe = recipe.addImagePath(path);
 
     // Update the recipe in Firestore
     await firestoreService.updateDocument(updatedRecipe, 'recipes');
