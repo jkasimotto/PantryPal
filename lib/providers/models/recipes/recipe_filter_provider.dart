@@ -55,6 +55,9 @@ class RecipeFilterProvider extends ChangeNotifier {
   }
 
   bool matchesIngredientsCountRequirement(RecipeModel recipe) {
+    if (_ingredientsCount == 10) {
+      return true;
+    }
     return recipe.ingredients.length <= _ingredientsCount;
   }
 }

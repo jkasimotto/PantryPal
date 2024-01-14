@@ -52,6 +52,7 @@ def extract_recipe(text: str, openai_api_key: str) -> Dict:
         )
 
         logging.debug("Extracting assistant's reply from API response...")
+        logging.info(f"Extract Recipe Usage: {completion.usage}")
         reply = completion.choices[0].message.tool_calls[0].function.arguments
         logging.info(f"Reply: {reply}")
 

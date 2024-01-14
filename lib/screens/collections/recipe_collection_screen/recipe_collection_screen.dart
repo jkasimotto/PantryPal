@@ -100,17 +100,10 @@ class RecipeCollectionBody extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
+    return const Column(
       children: [
         Expanded(
-          child: Padding(
-            padding: EdgeInsets.only(
-                bottom:
-                    Provider.of<UIProvider>(context).isAddingOrSearchingRecipes
-                        ? 116
-                        : 132),
-            child: const RecipeCollectionListView(),
-          ),
+          child: RecipeCollectionListView(),
         ),
       ],
     );

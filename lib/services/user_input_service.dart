@@ -119,22 +119,31 @@ class UserInputService {
       builder: (BuildContext context) {
         return StatefulBuilder(
           builder: (BuildContext context, StateSetter setState) {
-            return AlertDialog(
+            return SimpleDialog(
+              backgroundColor: Theme.of(context)
+                  .colorScheme
+                  .surface, // Use surface color from theme
               title: const Text('Enter URL'),
-              content: TextField(
-                controller: urlController,
-                decoration: InputDecoration(
-                  hintText: "https://",
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(15.0),
-                    borderSide: const BorderSide(color: Colors.black),
+              children: <Widget>[
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: TextField(
+                    controller: urlController,
+                    decoration: InputDecoration(
+                      hintText: "https://",
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(15.0),
+                        borderSide: BorderSide(
+                            color: Theme.of(context)
+                                .colorScheme
+                                .onSurface), // Use onSurface color from theme for border
+                      ),
+                    ),
+                    onChanged: (text) {
+                      setState(() {}); // This will cause the dialog to rebuild
+                    },
                   ),
                 ),
-                onChanged: (text) {
-                  setState(() {}); // This will cause the dialog to rebuild
-                },
-              ),
-              actions: <Widget>[
                 TextButton(
                   child: const Text('Cancel'),
                   onPressed: () {

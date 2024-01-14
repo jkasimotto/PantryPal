@@ -10,7 +10,7 @@ from firebase_functions import https_fn
 from util.logging import log_performance
 
 
-@https_fn.on_call(secrets=["OPENAI_API_KEY"], timeout_sec=300)
+@https_fn.on_call(secrets=["OPENAI_RECIPE_EXTRACTION_API_KEY"], timeout_sec=300)
 def extract_recipe_from_webpage(req: https_fn.CallableRequest) -> Dict:
     start_time = time.time()
 
@@ -27,7 +27,7 @@ def extract_recipe_from_webpage(req: https_fn.CallableRequest) -> Dict:
     url = req.data['url']
     logging.debug(f"URL extracted from request: {url}")
 
-    openai_api_key = os.environ.get('OPENAI_API_KEY')
+    openai_api_key = os.environ.get('OPENAI_RECIPE_EXTRACTION_API_KEY')
     logging.debug(f"OpenAI API key retrieved from environment: {openai_api_key}")
 
     try:

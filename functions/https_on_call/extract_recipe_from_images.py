@@ -1,14 +1,14 @@
 import logging
+import os
 import time
 from typing import Dict
 
 from firebase_functions import https_fn
 from openai import OpenAI
-
 from util.logging import log_performance
 
 
-@https_fn.on_call(secrets=["OPENAI_API_KEY"], timeout_sec=300)
+@https_fn.on_call(secrets=["OPENAI_VISION_API_KEY"], timeout_sec=300)
 def extract_recipe_from_images(req: https_fn.CallableRequest) -> Dict:
     start_time = time.time()
     try:
@@ -17,10 +17,11 @@ def extract_recipe_from_images(req: https_fn.CallableRequest) -> Dict:
 
         # Extract the base64 encoded images from the request data
         base64_images = req.data['images']
-        logging.debug(f"Extracted base64 images from request: {len(base64_images)} images")
+        logging.debug(
+            f"Extracted base64 images from request: {len(base64_images)} images")
 
         # Initialize the openai client
-        client = OpenAI()
+        client = OpenAI(api_key=os.getenv('OPENAI_VISION_API_KEY'))
 
         # Prepare the content for the API call
         content = [

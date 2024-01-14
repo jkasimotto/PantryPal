@@ -48,9 +48,7 @@ class RecipeCollectionFAB extends StatelessWidget {
                         userProvider.user?.metadata.hasCompletedTextAction ??
                             false);
                     if (recipeText != null) {
-                      if (context.mounted) {
-                        recipeService.extractRecipeFromText(recipeText);
-                      }
+                      recipeService.extractRecipeFromText(recipeText);
                     }
                   }),
                   _buildOptionRow(context, FontAwesomeIcons.microphone, 'Speak',

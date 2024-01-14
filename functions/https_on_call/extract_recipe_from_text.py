@@ -9,7 +9,7 @@ from extract_recipe import extract_recipe
 from util.logging import log_performance
 
 
-@https_fn.on_call(secrets=["OPENAI_API_KEY"], timeout_sec=540)
+@https_fn.on_call(secrets=["OPENAI_RECIPE_EXTRACTION_API_KEY"], timeout_sec=540)
 def extract_recipe_from_text(req: https_fn.CallableRequest) -> Dict:
     # Authentication / user information is automatically added to the request.
     logging.info(f"User ID: {req.auth.uid}")
@@ -26,7 +26,7 @@ def extract_recipe_from_text(req: https_fn.CallableRequest) -> Dict:
         text = req.data['text']
         logging.debug(f"Extracted text from request: {text}")
 
-        openai_api_key = os.environ.get('OPENAI_API_KEY')
+        openai_api_key = os.environ.get('OPENAI_RECIPE_EXTRACTION_API_KEY')
         logging.debug(f"Retrieved OpenAI API key from environment: {openai_api_key}")
 
         # Call the extract_recipe_from_text function

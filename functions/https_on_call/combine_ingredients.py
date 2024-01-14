@@ -1,5 +1,6 @@
 import json
 import logging
+import os
 import time
 from typing import Dict, List
 
@@ -9,7 +10,8 @@ from model.convert import convert_to_firestore_ingredient
 from model.extraction.shopping_list import \
     ShoppingListIngredient as ShoppingListIngredientExtracted
 from model.firestore.recipe import IngredientWithQuantity, Recipe
-from model.firestore.shopping_list import ShoppingListIngredient as ShoppingListIngredientFirestore
+from model.firestore.shopping_list import \
+    ShoppingListIngredient as ShoppingListIngredientFirestore
 from openai import OpenAI
 from util.logging import log_performance
 from util.pydantic import convert_enum_to_value
@@ -46,13 +48,14 @@ TOOL_FUNCTION_NAME = "combine_ingredients"
 TOOL_FUNCTION_DESCRIPTION = "Extract the final ingredient list from multiple recipes."
 
 
-@https_fn.on_call(secrets=["OPENAI_API_KEY"], timeout_sec=120)
+@https_fn.on_call(secrets=["OPENAI_LIST_COMBINATION_API_KEY"], timeout_sec=120)
 def combine_ingredients(req: https_fn.CallableRequest) -> Dict:
     start_time = log_start(req)
     try:
         recipes = parse_recipes(req)
         ingredients = extract_ingredients(recipes)
-        ai_assistant = AIIngredientAssistant(OpenAI())
+        ai_assistant = AIIngredientAssistant(
+            OpenAI(api_key=os.getenv('OPENAI_LIST_COMBINATION_API_KEY')))
 
         reasoning_reply = ai_assistant.get_reasoning(ingredients)
         combined_ingredients = ai_assistant.get_combined_ingredients(
@@ -124,7 +127,11 @@ class AIIngredientAssistant:
             model="gpt-4-1106-preview",
             messages=[{"role": "user", "content": reasoning_message}]
         )
-        logging.info(f"AI reasoning completion: {reasoning_completion.choices[0].message.content}")
+        logging.info(
+            f"AI reasoning completion: {reasoning_completion.choices[0].message.content}")
+        logging.info(
+            f"List Combination Reasoning Completion Usage: {reasoning_completion.usage}"
+        )
         return reasoning_completion.choices[0].message.content.split('FINAL LIST')[1].strip()
 
     def _handle_tool_extraction(self, reasoning_reply: str) -> List[ShoppingListIngredientFirestore]:
@@ -142,6 +149,9 @@ class AIIngredientAssistant:
 
         reply = completion.choices[0].message.tool_calls[0].function.arguments
         logging.info(f"AI tool extraction completion: {reply}")
+        logging.info(
+            f"List Combination ToolExtraction Usage: {completion.usage}"
+        )
         combined_ingredients = json.loads(reply)['ingredients']
         combined_ingredients = [ShoppingListIngredientExtracted.parse_obj(
             ingredient) for ingredient in combined_ingredients]

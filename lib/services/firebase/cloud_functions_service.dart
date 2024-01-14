@@ -137,9 +137,9 @@ Future<RecipeModel> extractRecipeFromWebpage(String url) async {
     developer.log("Result Data: ${result.data['recipe']}");
 
     if (result.data['status'] == 'success') {
-      var recipe = result.data['recipe'] as Map;
-      // Convert the result data to a Recipe
-      return RecipeModel.fromJson(Map<String, dynamic>.from(recipe));
+      // Bit of a hack that works.
+      var recipe = jsonDecode(jsonEncode(result.data))['recipe'];
+      return RecipeModel.fromJson(recipe.cast<String, dynamic>());
     } else {
       print('Error: ${result.data['error']}');
       return Future.error(result.data['error']);
