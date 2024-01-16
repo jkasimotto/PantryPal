@@ -6,6 +6,8 @@ class DraggableGrid extends StatefulWidget {
   final int crossAxisCount;
   final double childAspectRatio;
   final double elevation;
+  final double mainAxisSpacing; // new
+  final double crossAxisSpacing; // new
 
   const DraggableGrid({
     super.key,
@@ -14,6 +16,8 @@ class DraggableGrid extends StatefulWidget {
     this.crossAxisCount = 3,
     this.childAspectRatio = 1.0,
     this.elevation = 4.0,
+    this.mainAxisSpacing = 4.0, // new
+    this.crossAxisSpacing = 4.0, // new
   });
 
   @override
@@ -32,11 +36,22 @@ class _DraggableGridState extends State<DraggableGrid> {
   }
 
   @override
+  void didUpdateWidget(DraggableGrid oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.items != oldWidget.items) {
+      items = widget.items;
+      isDraggingList = List.generate(items.length, (_) => ValueNotifier(false));
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     return GridView.builder(
       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: widget.crossAxisCount,
         childAspectRatio: widget.childAspectRatio,
+        mainAxisSpacing: widget.mainAxisSpacing, // new
+        crossAxisSpacing: widget.crossAxisSpacing, // new
       ),
       itemCount: items.length,
       itemBuilder: (context, index) {

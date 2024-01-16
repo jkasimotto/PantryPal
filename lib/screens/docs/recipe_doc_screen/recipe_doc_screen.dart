@@ -1,4 +1,8 @@
 import 'dart:io';
+import 'dart:developer' as developer;
+import 'package:flutter_recipes/services/firebase/firebase_cache_service.dart';
+import 'package:flutter_recipes/shared/ingredients/ingredient_icon.dart';
+import 'package:photo_view/photo_view.dart'; // New import
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -61,10 +65,13 @@ class _RecipeDocScreenState extends State<RecipeDocScreen> {
         adService: Provider.of<AdService>(context),
         recipeProvider: Provider.of<RecipeProvider>(context),
         storageService: StorageService());
+    developer.log('Building RecipeDocScreen', name: 'RecipeDocScreenBuilder');
     return ValueListenableBuilder(
         valueListenable: _recipeNotifier,
         builder:
             (BuildContext context, RecipeModel updatedRecipe, Widget? child) {
+          developer.log('ValueListenableBuilder triggered',
+              name: 'ValueListenableBuilderTrigger');
           return Scaffold(
             appBar: RecipeDocAppBar(_saveRecipe),
             body: Padding(
@@ -131,36 +138,79 @@ class _RecipeDocScreenState extends State<RecipeDocScreen> {
     final int numberOfRows = (numberOfImages / gridCount).ceil();
     final double gridHeight = numberOfRows * imageThumbnailHeight;
 
-    // Print the paths
-    for (var path in updatedRecipe.firebaseImagePaths) {
-      print('Image path: $path');
-    }
+    developer.log('Building ImageGrid', name: 'ImageGridBuilder');
 
-    return SizedBox(
-      height: gridHeight,
-      child: DraggableGrid(
-        items: [
-          ...updatedRecipe.firebaseImagePaths.map((path) {
-            return ImageThumbnail(
-              firebaseImagePath: path,
-              width: imageThumbnailWidth,
-              height: imageThumbnailHeight,
+    final items = [
+      ...updatedRecipe.firebaseImagePaths.map((path) {
+        developer.log('Building ImageThumbnail for path: $path',
+            name: 'ImageThumbnailBuilder');
+
+        return ImageThumbnail(
+          firebaseImagePath: path,
+          width: imageThumbnailWidth,
+          height: imageThumbnailHeight,
+          onTap: () {
+            Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (BuildContext context) {
+                  return FutureBuilder<ImageProvider>(
+                    future: FirebaseCacheService().getImageProvider(path),
+                    builder: (BuildContext context,
+                        AsyncSnapshot<ImageProvider> snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return Center(child: CircularProgressIndicator());
+                      } else if (snapshot.hasError) {
+                        return Center(child: Text('Error: ${snapshot.error}'));
+                      } else {
+                        return Scaffold(
+                          backgroundColor: Colors.black,
+                          appBar: AppBar(
+                            backgroundColor: Colors.transparent,
+                            leading: IconButton(
+                              icon: Icon(Icons.close, color: Colors.white),
+                              onPressed: () => Navigator.of(context).pop(),
+                            ),
+                          ),
+                          body: Center(
+                            child: PhotoView(
+                              imageProvider: snapshot.data,
+                            ),
+                          ),
+                        );
+                      }
+                    },
+                  );
+                },
+              ),
             );
-          }).toList(),
-          buildAddImageThumbnail(recipeService), // Add the add image thumbnail
-        ],
-        onReorder: (oldIndex, newIndex) {
-          setState(() {
-            updatedRecipe = updatedRecipe.reorderImages(oldIndex, newIndex);
-            _firestoreService.updateDocument(updatedRecipe, 'recipes');
-          });
-        },
-        crossAxisCount: gridCount,
+          },
+        );
+      }).toList(),
+      buildAddImageThumbnail(recipeService)
+    ]; // Add the add image thumbnail
+
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: SizedBox(
+        height: gridHeight,
+        child: DraggableGrid(
+          items: items,
+          onReorder: (oldIndex, newIndex) {
+            developer.log('Reordering images', name: 'ImageReorder');
+            setState(() {
+              updatedRecipe = updatedRecipe.reorderImages(oldIndex, newIndex);
+              _firestoreService.updateDocument(updatedRecipe, 'recipes');
+            });
+          },
+          crossAxisCount: gridCount,
+        ),
       ),
     );
   }
 
   Widget buildAddImageThumbnail(RecipeService recipeService) {
+    developer.log('Building AddImageThumbnail',
+        name: 'AddImageThumbnailBuilder');
     return GestureDetector(
       onTap: () async {
         UserInputService userInputService = UserInputService();
@@ -168,6 +218,9 @@ class _RecipeDocScreenState extends State<RecipeDocScreen> {
             await userInputService.showImageSourceSelection(context);
         if (images != null) {
           for (var image in images) {
+            developer.log('Adding image to recipe: ${image.path}',
+                name: 'ImageAdder');
+
             recipeService.addImagePathToRecipe(widget.recipe, File(image.path));
           }
         }
